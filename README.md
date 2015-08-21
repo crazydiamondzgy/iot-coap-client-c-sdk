@@ -1,9 +1,16 @@
 # iot-coap-client-c-sdk
-A minimum C implementation of COAP(RFC 7252) for 8bitMCU and more platform.
-
+A minimum, simplet, fast C implementation of COAP(RFC 7252) for 8bitMCU and more platform.
 Copyright (C) 2014--2015 by crazydiamondzgy
 
-##todo list
+## Feature
+
+1. Affort a minimun footprint as least as it possible
+2. Asynchronous mode, single thread make the develop easily.
+3. Performance highly optimized for the embeded system.
+4. Support all the platform I hope.
+
+
+## Todo List
 1. add timer loop to check the timeout
 2. add ios support
 3. add android support
