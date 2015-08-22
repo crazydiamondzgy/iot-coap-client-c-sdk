@@ -100,5 +100,9 @@ SOURCE=.\ucoap_srv.c
 
 SOURCE=.\ucoap_srv.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\utypes.h
+# End Source File
 # End Target
 # End Project
