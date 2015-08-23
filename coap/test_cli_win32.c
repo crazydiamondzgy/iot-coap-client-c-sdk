@@ -26,7 +26,8 @@ int main(int argc, char **argv)
     fd = socket(AF_INET, SOCK_DGRAM, 0);
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-	server = gethostbyname("vs0.inf.ethz.ch");
+	//server = gethostbyname("vs0.inf.ethz.ch");
+	server = gethostbyname("192.168.0.199");
 	servaddr.sin_addr.s_addr = *(u_long *)server->h_addr_list[0];
     servaddr.sin_port = htons(5683);
 
@@ -41,22 +42,31 @@ int main(int argc, char **argv)
 
 		coap_pkt_t * p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0, 1000);
 		coap_pkt_add_token(p_pkt, NULL, 0);
-		coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, ".well-known", strlen(".well-known"));
-		coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, "core", strlen("core"));
+		//coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, ".well-known", strlen(".well-known"));
+		//coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, "core", strlen("core"));
+		coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, "topic", strlen("topic"));
+		coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_QUERY, "root:root", strlen("root:root"));
 		coap_pkt_add_data(p_pkt,data, 16);
 
 		sendto(fd, (const char *)&p_pkt->hdr, p_pkt->pkt_len, 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
-		tv.tv_sec = 10;
-		tv.tv_usec = 0;
-		FD_ZERO(&rfds);
-		FD_SET(fd, &rfds);
-		ret = select(0, &rfds, NULL, NULL, &tv);
-		if (ret > 0)
+		
+		while (1)
 		{
-			recvfrom(fd, buf, 512, 0,  (struct sockaddr *)&servaddr, &len);
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+			FD_ZERO(&rfds);
+			FD_SET(fd, &rfds);
+			ret = select(0, &rfds, NULL, NULL, &tv);
+			if (ret > 0)
+			{
+				ret = recvfrom(fd, buf, 512, 0,  (struct sockaddr *)&servaddr, &len);
+			}
+			else if (ret == 0)
+			{
+				break;
+			}
 		}
-
-		Sleep(10);
+		
 		getchar();
 		closesocket(fd);
     }
@@ -67,4 +77,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-

@@ -82,19 +82,19 @@ LIB32=link.exe -lib
 # Name "ucoap - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\ucoap.h
+SOURCE=..\..\coap\ucoap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ucoap_cli.c
+SOURCE=..\..\coap\ucoap_cli.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\ucoap_cli.h
+SOURCE=..\..\coap\ucoap_cli.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\utypes.h
+SOURCE=..\..\coap\utypes.h
 # End Source File
 # End Target
 # End Project
