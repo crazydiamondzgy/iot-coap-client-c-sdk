@@ -81,9 +81,5 @@ LINK32=link.exe
 
 # Name "ucoap_cli - Win32 Release"
 # Name "ucoap_cli - Win32 Debug"
-# Begin Source File
-
-SOURCE=.\test_cli_win32.c
-# End Source File
 # End Target
 # End Project
