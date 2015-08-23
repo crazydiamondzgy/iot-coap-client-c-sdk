@@ -4,114 +4,99 @@
 #include <string.h>
 #include "ucoap_cli.h"
 
-static uint16 _message_id = 0;
+coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id, size_t pkt_size) {
+	coap_pkt_t * p_pkt = NULL;
 
-//
-// only suport Uri-Path(0x0B)
-// tkl = 0
-//
+	if (pkt_size < sizeof(coap_hdr_t) || pkt_size > COAP_MAX_PKT_SIZE)
+		return NULL;
+	
+	p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + pkt_size);
+	if (p_pkt) {
+		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + pkt_size);
+		p_pkt->pkt_size       = pkt_size;
+		p_pkt->pkt_len        = 4;
+		p_pkt->hdr.version    = 1;
+		p_pkt->hdr.type       = type;
+		p_pkt->hdr.code       = code;
+		p_pkt->hdr.message_id = message_id;
+	}
+	
+	return p_pkt;
+}
 
-int coap_mini_build(uint8 * buf, int * buflen, uint8 type, uint8 method, uint8 * url, uint8 * data, int datalen)
-{
-    int opts_len = 0;
-    int i = 0;
-    uint8 * p = NULL;
-    uint8 start_ptr = 0;
-	uint8 stop_ptr = 0;
-	uint8 last_delta = 0x00;
+int coap_pkt_free(coap_pkt_t * p_pkt) {
+	free(p_pkt);
 
-    buf[0] = (0x01 & 0x03) << 6;
-    buf[0] |= (type & 0x03) << 4;
-    buf[1] = method;
-    buf[2] = (_message_id & 0xFF00) >> 8;
-    buf[3] = _message_id & 0x00FF;
+	return 0;
+}
 
-    p = buf + 4;
+int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len) {
+	size_t pkt_len = token_len + p_pkt->pkt_len;
+	if (!p_pkt || token_len > 8 || p_pkt->pkt_size < pkt_len)
+		return -1;
+	
+	if (token_len)
+		memcpy(p_pkt->hdr.token_data, token_data, token_len);
+	
+	p_pkt->hdr.token_len = token_len;
+	p_pkt->pkt_len = pkt_len;
+	p_pkt->max_delta = 0;
+	
+	return 0;
+}
 
-    for (i=0; i<strlen(url); i++)
-    {
-        if (url[i] == '/' || url[i+1] == '\0')
-		{
-			stop_ptr = url[i+1] == '\0' ? (i+1) : i;
-			opts_len = stop_ptr - start_ptr;
-
-			if (opts_len > 0 && opts_len < 13)
-			{
-				*p++ = (0xB0 - last_delta) | opts_len;
-				last_delta = 0xB0;
-			}
-			else if (opts_len >= 13 && opts_len < 269)
-			{
-				*p++ = (0xB0 - last_delta) | 0x0D;
-				*p++ = opts_len - 13;
-				last_delta = 0xB0;
-			}
-			else if (opts_len >= 269)
-			{
-				*p++ = (0xB0 - last_delta) | 0x0E;
-				*p++ = ((opts_len - 269) >> 8);
-				*p++ = (0xFF & (opts_len - 269));
-				last_delta = 0xB0;
-			}
-
-			if (opts_len > 0)
-			{
-				memcpy(p, url + start_ptr, opts_len);
-				p += opts_len;
-			}
-
-			start_ptr = i + 1;
-		}
-    }
-
-    if (datalen > 0)
-    {
-        *p++ = 0xFF;
-        memcpy(p, data, datalen);
-        p += datalen;
-    }
+int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_data, size_t option_len) {
+	uint8 * p_opt = (uint8 *)&p_pkt->hdr + p_pkt->pkt_len;
+	uint16 option_delta = option_type - p_pkt->max_delta;
+	int i = 0;
+	
+	if (option_type < p_pkt->max_delta)
+		return -1;
+	
+	if (option_delta < 13)
+		p_opt[0] = option_delta << 4;
+	else if (option_delta < 270) {
+		p_opt[0] = 0xD0;
+		p_opt[++i] = option_delta - 13;
+	} 
+	else {
+		p_opt[0] = 0xE0;
+		p_opt[++i] = ((option_delta - 269) >> 8) & 0xFF;
+		p_opt[++i] = (option_delta - 269) & 0xFF;
+	}
     
-    *buflen = p - buf;
-	_message_id++;
-    return 0;
+	if (option_len < 13)
+		p_opt[0] |= option_len & 0x0f;
+	else if (option_len < 270) {
+		p_opt[0] |= 0x0D;
+		p_opt[++i] = option_len - 13;
+	}
+	else {
+		p_opt[0] |= 0x0E;
+		p_opt[++i] = ((option_len - 269) >> 8) & 0xFF;
+		p_opt[++i] = (option_len - 269) & 0xFF;
+	}
+	
+	if (option_len > 0)
+		memcpy(p_opt + i + 1, option_data, option_len);
+	
+	p_pkt->max_delta = option_type;
+	p_pkt->pkt_len += option_len + i + 1;
+
+	return 0;
 }
 
-int ucoap_build_con_get_pkt (uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_CON, COAP_METHOD_GET, url, data, datalen);
-}
-
-int ucoap_build_non_get_pkt (uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_NON, COAP_METHOD_GET, url, data, datalen);
-}
-
-int ucoap_build_con_post_pkt(uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_CON, COAP_METHOD_POST, url, data, datalen);
-}
-
-int ucoap_build_non_post_pkt(uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_NON, COAP_METHOD_POST, url, data, datalen);
-}
-
-int ucoap_build_con_put_pkt (uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_CON, COAP_METHOD_PUT, url, data, datalen);
-}
-
-int ucoap_build_non_put_pkt (uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_NON, COAP_METHOD_PUT, url, data, datalen);
-}
-
-int ucoap_build_con_del_pkt (uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_CON, COAP_METHOD_DEL, url, data, datalen);
-}
-
-int ucoap_build_non_del_pkt (uint8 * buf, int * buflen, uint8 * url, uint8 * data, int datalen)
-{
-	return coap_mini_build(buf, buflen, COAP_TYPE_NON, COAP_METHOD_DEL, url, data, datalen);
+int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * p_data, size_t data_len) {
+	uint8 * p = (uint8 *)&p_pkt->hdr + p_pkt->pkt_len;
+	if (data_len == 0)
+		return -1;
+	
+	if (p_pkt->pkt_len + data_len + 1 > p_pkt->pkt_size)
+		return -2;
+	
+	*p++ = 0xFF;
+	memcpy(p, p_data, data_len);
+	p_pkt->pkt_len += data_len + 1;
+	
+	return 0;
 }

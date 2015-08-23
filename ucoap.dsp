@@ -94,14 +94,6 @@ SOURCE=.\ucoap_cli.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ucoap_srv.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\ucoap_srv.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\utypes.h
 # End Source File
 # End Target
