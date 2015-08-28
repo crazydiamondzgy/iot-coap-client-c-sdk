@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
-#include "ucoap_cli.h"
+#include "ucoap.h"
 
 coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id, size_t pkt_size) {
 	coap_pkt_t * p_pkt = NULL;

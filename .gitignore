@@ -1,0 +1,6 @@
+*.ncb
+*.opt
+*.obj
+*.plg
+build/vc6/*Debug/
+
