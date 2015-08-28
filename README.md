@@ -1,11 +1,11 @@
-# iot-coap-client-c-sdk
-A minimum, simplet, fast C implementation of COAP(RFC 7252) for 8bitMCU and more platform.
+# UCOAP
+A minimum, simplet, fast C implementation of COAP(RFC 7252) misc platform.
 Copyright (C) 2014--2015 by crazydiamondzgy
 
 ## Feature
 
 1. Affort a minimun footprint as least as it possible
-2. Asynchronous mode, single thread make the develop easily.
+2. Asynchronous mode, single thread make the developing easily.
 3. Performance highly optimized for the embeded system.
 4. Support all the platform I hope.
 
