@@ -1,6 +1,6 @@
 #include <winsock2.h>
 #include <stdio.h>
-#include "ucoap_cli.h"
+#include "ucoap.h"
 
 int main(int argc, char **argv)
 {
