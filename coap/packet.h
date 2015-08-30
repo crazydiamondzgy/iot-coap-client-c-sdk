@@ -1,5 +1,5 @@
-#ifndef __PKT_H__
-#define __PKT_H__
+#ifndef __PACKET_H__
+#define __PACKET_H__
 
 #ifdef __cplusplus
 extern "C" {
