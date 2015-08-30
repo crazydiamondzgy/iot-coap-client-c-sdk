@@ -1,5 +1,5 @@
-#ifndef __PACKET_H__
-#define __PACKET_H__
+#ifndef __COAP_PACKET_H__
+#define __COAP_PACKET_H__
 
 #ifdef __cplusplus
 extern "C" {

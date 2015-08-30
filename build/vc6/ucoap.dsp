@@ -82,31 +82,51 @@ LIB32=link.exe -lib
 # Name "ucoap - Win32 Debug"
 # Begin Source File
 
-SOURCE=..\..\coap\endpoint.c
+SOURCE=..\..\coap\coap_client.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\endpoint.h
+SOURCE=..\..\coap\coap_client.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\packet.c
+SOURCE=..\..\coap\coap_log.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\packet.h
+SOURCE=..\..\coap\coap_log.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_mutex.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_mutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_node.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_node.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_packet.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_packet.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\iqueue.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\coap\port.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\coap\ucoap.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\coap\ucoap.h
 # End Source File
 # Begin Source File
 

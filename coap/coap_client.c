@@ -27,7 +27,7 @@ int coap_connect(char * p_str_addr, int port)
 		}
 #endif
 
-		coap_clear_endpoints();
+		coap_init_nodes();
 
 		__is_socket_inited = 1;
 	}
@@ -85,6 +85,7 @@ int coap_send(int s, char * p_method, char * p_uri, char * p_data, int len)
 	coap_pkt_add_data(p_pkt,data, 16);
 	
 	sendto(fd, (const char *)&p_pkt->hdr, p_pkt->pkt_len, 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+
 }
 
 int coap_recv(int s, char * p_method, char)

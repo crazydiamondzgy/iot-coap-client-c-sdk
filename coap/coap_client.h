@@ -1,5 +1,5 @@
-#ifndef __UCOAP_H__
-#define __UCOAP_H__
+#ifndef __COAP_CLIENT_H__
+#define __COAP_CLIENT_H__
 
 #ifdef __cplusplus
 extern "C" {
