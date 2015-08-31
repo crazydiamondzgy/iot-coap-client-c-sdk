@@ -1,12 +1,13 @@
-#include "p2p_mutex.h"
+#include "coap_mutex.h"
 
-p2p_mutex_t::p2p_mutex_t() : m_bCreated(true)
+coap_mutex_t * coap_mutex_alloc()
 {
+	
 #ifdef WINDOWS
 	m_mutex = CreateMutex(NULL, FALSE, NULL);
 	if (!m_mutex)
 	{
-		m_bCreated = false;
+		m_is_created = false;
 	}
 
 #else

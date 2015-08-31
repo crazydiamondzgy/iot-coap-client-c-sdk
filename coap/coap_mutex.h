@@ -13,21 +13,19 @@
 #include <windows.h>
 #endif
 
-class coap_mutex_t
+typedef struct
 {
-private:
 #ifdef WINDOWS
 	HANDLE m_mutex;
 #else
 	pthread_mutex_t m_mutex;
 #endif
+	int m_is_created;
+} coap_mutex_t;
 
-public:
-	bool m_bCreated;
-	void Lock();
-	void Unlock();
-	p2p_mutex_t(void);
-	~p2p_mutex_t(void);
-};
+coap_mutex_t * coap_mutex_alloc();
+void coap_mutex_free(coap_mutex_t * p_mutex);
+void coap_mutex_lock(coap_mutex_t * p_mutex);
+void coap_mutex_unlock(coap_mutext_t * p_mutex);
 
 #endif

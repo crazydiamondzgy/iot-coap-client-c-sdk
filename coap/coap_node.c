@@ -1,4 +1,7 @@
-#include "endpoints.h"
+#include <assert.h>
+
+#include "coap_log.h"
+#include "coap_node.h"
 
 int coap_clear_nodes(coap_node_mgr_t * p_node_mgr)
 {
@@ -89,7 +92,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 		tv.tv_usec = 10000;
 		ret = select(m_msg_sock + 1, &rfds, NULL, NULL, &tv);
 		if (ret < 0) {
-			p2p_log_error_string("## socket error, please restart libp2p\r\n");
+			coap_log_error_string("## socket error, please restart libp2p\r\n");
 
 			break;
 		}
@@ -104,7 +107,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 			int len = recvfrom(m_msg_sock, (char *)buf, 2048, 0, (sockaddr *)&sock, (socklen_t *)&udp_sock_len);
 			if (len <= 0) {
 				int err = p2p_get_error_code();
-				p2p_log_error_string("Socket Error:%d!\r\n", err);
+				coap_log_error_string("Socket Error:%d!\r\n", err);
 				continue;
 			}
 
@@ -114,11 +117,16 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 				continue;
 			}
 
-			p2p_log_debug_string("## Incorrect Packet, Neither UP2P Nor UDTP\r\n");
-			p2p_log_debug_binary(buf, len);
+			coap_log_debug_string("## Incorrect Packet, Neither UP2P Nor UDTP\r\n");
+			coap_log_debug_binary(buf, len);
 		}
 	}
 
-	p2p_log_error_string("## libp2p main thread exited\r\n");
-	return;
+	coap_log_error_string("## libp2p main thread exited\r\n");
+
+#ifndef _WIN32
+	return NULL;
+#else
+	return 0;
+#endif
 }

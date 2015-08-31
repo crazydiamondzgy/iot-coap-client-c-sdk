@@ -1,5 +1,5 @@
-#ifndef __IQUEUE_H__
-#define __IQUEUE_H__
+#ifndef __COAP_QUEUE_H__
+#define __COAP_QUEUE_H__
 
 typedef struct IQUEUEHEAD {
 	struct IQUEUEHEAD *next, *prev;

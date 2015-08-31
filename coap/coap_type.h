@@ -1,5 +1,5 @@
-#ifndef __UTYPES_H__
-#define __UTYPES_H__
+#ifndef __COAP_TYPES_H__
+#define __COAP_TYPES_H__
 
 // standard types
 typedef unsigned char byte;

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 	
-#include "utypes.h"
+#include "coap_type.h"
 
 #define COAP_MAX_PKT_SIZE                      1400
 
