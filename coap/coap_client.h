@@ -21,7 +21,7 @@ int coap_getsockopt(int s, int level, int optname, void * optval);
 /* Synchronous API */
 
 int coap_send(int s, char * p_method, char * p_uri, char * p_data, int len);
-int coap_recv(int s, char * p_data, int * len);
+int coap_recv(int s, char * p_data, int len);
 
 /* Asynchronous API */
 

@@ -11,9 +11,14 @@ typedef unsigned int uint;
 typedef unsigned int uint32;
 typedef signed int int32;
 
-#ifdef _MSC_VER
+#if defined _WIN32
+#  if (_MSC_VER > 1200)
 typedef unsigned __int64 uint64;
 typedef signed __int64 int64;
+#  else
+typedef __int64 uint64;
+typedef __int64 int64;
+#  endif
 #else
 typedef unsigned long long uint64;
 typedef long long int64;

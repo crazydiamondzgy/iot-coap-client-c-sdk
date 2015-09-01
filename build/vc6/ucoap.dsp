@@ -130,6 +130,14 @@ SOURCE=..\..\coap\coap_type.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\coap\coap_util.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_util.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\coap\os_support.h
 # End Source File
 # End Target

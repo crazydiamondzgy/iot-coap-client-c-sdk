@@ -21,6 +21,7 @@
 #    endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
 #  endif /* #ifndef strncasecmp */
 
+typedef int              socklen_t;
 typedef HANDLE           pthread_t;
 typedef SOCKET           socket_t;
 
@@ -41,6 +42,8 @@ typedef SOCKET           socket_t;
 #  include <strings.h>
 #  include <errno.h>
 #  define closesocket close
+#  define min(a,b)	((a) < (b) ? (a) : (b))
+#  define max(a,b)	((a) > (b) ? (a) : (b))
 
 #endif /* #ifdef _WIN32 */
 

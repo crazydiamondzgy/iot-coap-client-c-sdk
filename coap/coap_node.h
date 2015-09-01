@@ -21,6 +21,7 @@ typedef struct
 	coap_node_t * m_coap_nodes[COAP_MAX_NODES];
 	pthread_t     m_node_mgr_thread;
 	uint32        m_node_mgr_time_cache;
+	int           m_node_mgr_is_running;
 } coap_node_mgr_t;
 
 int coap_find_unused_node(coap_node_mgr_t * p_node_mgr);

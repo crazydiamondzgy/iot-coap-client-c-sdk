@@ -100,7 +100,7 @@ int coap_send(int s, char * p_method, char * p_uri, char * p_data, int len)
 	return 0;
 }
 
-int coap_recv(int s, char * p_data, int * len)
+int coap_recv(int s, char * p_data, int len)
 {
 	return 0;
 }
