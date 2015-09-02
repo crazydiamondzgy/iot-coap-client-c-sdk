@@ -14,7 +14,6 @@ static GetTickCount64Proc *pt2RealGetTickCount;
 
 static uint64 startPerformanceCounter;
 static uint64 startGetTickCount;
-// MSVC 6 standard doesn't like division with uint64s
 static double counterPerMicrosecond;
 
 uint64 UTGetTickCount64()

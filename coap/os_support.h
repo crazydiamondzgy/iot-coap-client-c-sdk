@@ -16,10 +16,10 @@
 #  ifndef strncasecmp
 #    if defined(_MSC_VER) && (_MSC_VER >= 1400)
 #      define strncasecmp _memicmp
-#    else /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
+#    else
 #      define strncasecmp memicmp
-#    endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
-#  endif /* #ifndef strncasecmp */
+#    endif
+#  endif
 
 typedef int              socklen_t;
 typedef HANDLE           pthread_t;
@@ -45,6 +45,6 @@ typedef SOCKET           socket_t;
 #  define min(a,b)	((a) < (b) ? (a) : (b))
 #  define max(a,b)	((a) > (b) ? (a) : (b))
 
-#endif /* #ifdef _WIN32 */
+#endif
 
 #endif

@@ -1,11 +1,8 @@
 #ifndef __COAP_PACKET_H__
 #define __COAP_PACKET_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	
 #include "coap_type.h"
+#include "queue.h"
 
 #define COAP_MAX_PKT_SIZE                      1400
 
@@ -60,29 +57,26 @@ extern "C" {
 #define COAP_PKT_OPTION_SIZE1                  60
 
 typedef struct {
-  uint8  token_len:4;
-  uint8  type:2;
-  uint8  version:2;
-  uint8  code;
-  uint16 message_id;
-  uint8  token_data[];
+	uint8  token_len:4;
+	uint8  type:2;
+	uint8  version:2;
+	uint8  code;
+	uint16 message_id;
+	uint8  token_data[];
 } coap_hdr_t;
 
 typedef struct {
-  size_t     pkt_size;
-  size_t     pkt_len;
-  uint16     max_delta;
-  coap_hdr_t hdr;
+	queue_hdr_t node;
+	size_t      pkt_size;
+	size_t      pkt_len;
+	uint16      max_delta;
+	coap_hdr_t  hdr;
 } coap_pkt_t;
 
-coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id, size_t pkt_size);
+coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id);
 int coap_pkt_free(coap_pkt_t * p_pkt);
 int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len);
 int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_data, size_t option_len);
 int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * data, size_t data_len);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

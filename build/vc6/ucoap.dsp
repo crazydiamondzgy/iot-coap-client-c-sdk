@@ -90,6 +90,14 @@ SOURCE=..\..\coap\coap_client.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\coap\coap_endpoint.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\coap_endpoint.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\coap\coap_log.c
 # End Source File
 # Begin Source File
@@ -106,11 +114,11 @@ SOURCE=..\..\coap\coap_mutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_node.c
+SOURCE=..\..\coap\coap_option.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_node.h
+SOURCE=..\..\coap\coap_option.h
 # End Source File
 # Begin Source File
 

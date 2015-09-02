@@ -50,7 +50,7 @@ void coap_log_print(char * tmp, int level)
 	default:
 		break;
 	}
-	__android_log_print(android_log_level, "P2P", tmp);
+	__android_log_print(android_log_level, "coap", tmp);
 #else
 	printf(tmp);
 #endif

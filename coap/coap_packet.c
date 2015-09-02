@@ -4,16 +4,15 @@
 #include <string.h>
 #include "coap_packet.h"
 
-coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id, size_t pkt_size) {
+coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id) 
+{
 	coap_pkt_t * p_pkt = NULL;
 
-	if (pkt_size < sizeof(coap_hdr_t) || pkt_size > COAP_MAX_PKT_SIZE)
-		return NULL;
-	
-	p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + pkt_size);
-	if (p_pkt) {
-		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + pkt_size);
-		p_pkt->pkt_size       = pkt_size;
+	p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
+	if (p_pkt) 
+	{
+		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
+		p_pkt->pkt_size       = COAP_MAX_PKT_SIZE;
 		p_pkt->pkt_len        = 4;
 		p_pkt->hdr.version    = 1;
 		p_pkt->hdr.type       = type;
@@ -24,19 +23,25 @@ coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id, size_t pkt
 	return p_pkt;
 }
 
-int coap_pkt_free(coap_pkt_t * p_pkt) {
+int coap_pkt_free(coap_pkt_t * p_pkt) 
+{
 	free(p_pkt);
 
 	return 0;
 }
 
-int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len) {
+int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len) 
+{
 	size_t pkt_len = token_len + p_pkt->pkt_len;
 	if (!p_pkt || token_len > 8 || p_pkt->pkt_size < pkt_len)
+	{
 		return -1;
+	}
 	
 	if (token_len)
+	{
 		memcpy(p_pkt->hdr.token_data, token_data, token_len);
+	}
 	
 	p_pkt->hdr.token_len = token_len;
 	p_pkt->pkt_len = pkt_len;
@@ -51,34 +56,46 @@ int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_d
 	int i = 0;
 	
 	if (option_type < p_pkt->max_delta)
+	{
 		return -1;
+	}
 	
 	if (option_delta < 13)
+	{
 		p_opt[0] = option_delta << 4;
-	else if (option_delta < 270) {
+	}
+	else if (option_delta < 270) 
+	{
 		p_opt[0] = 0xD0;
 		p_opt[++i] = option_delta - 13;
 	} 
-	else {
+	else 
+	{
 		p_opt[0] = 0xE0;
 		p_opt[++i] = ((option_delta - 269) >> 8) & 0xFF;
 		p_opt[++i] = (option_delta - 269) & 0xFF;
 	}
     
 	if (option_len < 13)
+	{
 		p_opt[0] |= option_len & 0x0f;
-	else if (option_len < 270) {
+	}
+	else if (option_len < 270) 
+	{
 		p_opt[0] |= 0x0D;
 		p_opt[++i] = option_len - 13;
 	}
-	else {
+	else 
+	{
 		p_opt[0] |= 0x0E;
 		p_opt[++i] = ((option_len - 269) >> 8) & 0xFF;
 		p_opt[++i] = (option_len - 269) & 0xFF;
 	}
 	
 	if (option_len > 0)
+	{
 		memcpy(p_opt + i + 1, option_data, option_len);
+	}
 	
 	p_pkt->max_delta = option_type;
 	p_pkt->pkt_len += option_len + i + 1;
@@ -86,13 +103,18 @@ int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_d
 	return 0;
 }
 
-int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * p_data, size_t data_len) {
+int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * p_data, size_t data_len) 
+{
 	uint8 * p = (uint8 *)&p_pkt->hdr + p_pkt->pkt_len;
 	if (data_len == 0)
+	{
 		return -1;
+	}
 	
 	if (p_pkt->pkt_len + data_len + 1 > p_pkt->pkt_size)
+	{
 		return -2;
+	}
 	
 	*p++ = 0xFF;
 	memcpy(p, p_data, data_len);

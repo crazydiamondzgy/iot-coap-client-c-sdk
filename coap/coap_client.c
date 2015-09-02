@@ -1,10 +1,10 @@
 #include "os_support.h"
 #include "coap_client.h"
-#include "coap_node.h"
+#include "coap_endpoint.h"
 #include "coap_packet.h"
 
 static int __is_socket_inited = 0;
-static coap_node_mgr_t __coap_node_mgr;
+static coap_endpoint_mgr_t __coap_endpoint_mgr;
 
 int coap_setsockopt(int s, int level, int optname, void * optval, int optlen)
 {
@@ -19,8 +19,8 @@ int coap_getsockopt(int s, int level, int optname, void * optval)
 int coap_connect(char * p_str_addr, int port) 
 {
 	struct hostent * p_host = NULL;
-	int unused_node_index = 0;
-	coap_node_t * p_node = NULL;
+	int unused_endpoint_index = 0;
+	coap_endpoint_t * p_endpoint = NULL;
 	
 	if (0 == __is_socket_inited) 
 	{
@@ -39,7 +39,7 @@ int coap_connect(char * p_str_addr, int port)
 		}
 #endif
 
-		coap_init_nodes(&__coap_node_mgr);
+		coap_init_endpoints(&__coap_endpoint_mgr);
 
 		__is_socket_inited = 1;
 	}
@@ -49,8 +49,8 @@ int coap_connect(char * p_str_addr, int port)
 		return COAP_RET_INVALID_PARAMETERS;
 	}
 
-	unused_node_index = coap_find_unused_node(&__coap_node_mgr);
-	if (unused_node_index < 0)
+	unused_endpoint_index = coap_find_unused_endpoint(&__coap_endpoint_mgr);
+	if (unused_endpoint_index < 0)
 	{
 		return COAP_RET_NO_MORE_NODE;
 	}
@@ -58,15 +58,15 @@ int coap_connect(char * p_str_addr, int port)
 	p_host = gethostbyname(p_str_addr);
 	if (p_host && p_host->h_addr_list[0]) 
 	{
-		p_node = (coap_node_t *)malloc(sizeof(coap_node_t));
-		p_node->m_servsock = socket(AF_INET, SOCK_DGRAM, 0);
-		p_node->m_servaddr.sin_family = AF_INET;
-		p_node->m_servaddr.sin_addr.s_addr = *(u_long *)p_host->h_addr_list[0];
-		p_node->m_servaddr.sin_port = htons((int16)port);
+		p_endpoint = (coap_endpoint_t *)malloc(sizeof(coap_endpoint_t));
+		p_endpoint->m_servsock = socket(AF_INET, SOCK_DGRAM, 0);
+		p_endpoint->m_servaddr.sin_family = AF_INET;
+		p_endpoint->m_servaddr.sin_addr.s_addr = *(u_long *)p_host->h_addr_list[0];
+		p_endpoint->m_servaddr.sin_port = htons((int16)port);
 
-		coap_set_node(&__coap_node_mgr, unused_node_index, p_node);
+		coap_set_endpoint(&__coap_endpoint_mgr, unused_endpoint_index, p_endpoint);
 
-		return unused_node_index;
+		return unused_endpoint_index;
 	}
 	else 
 	{
@@ -82,20 +82,20 @@ int coap_close(int s)
 int coap_send(int s, char * p_method, char * p_uri, char * p_data, int len) 
 {
 	coap_pkt_t * p_pkt = NULL;
-	coap_node_t * p_node = coap_get_node(&__coap_node_mgr, s);
+	coap_endpoint_t * p_endpoint = coap_get_endpoint(&__coap_endpoint_mgr, s);
 
-	if (0 == strncasecmp(p_method, "GET", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0, 1000);
-	if (0 == strncasecmp(p_method, "PUT", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0, 1000);
-	if (0 == strncasecmp(p_method, "POST", 7))   p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, 0, 1000);
-	if (0 == strncasecmp(p_method, "DELETE", 7)) p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0, 1000);
+	if (0 == strncasecmp(p_method, "GET", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0);
+	if (0 == strncasecmp(p_method, "PUT", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0);
+	if (0 == strncasecmp(p_method, "POST", 7))   p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, 0);
+	if (0 == strncasecmp(p_method, "DELETE", 7)) p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0);
 
 	coap_pkt_add_token(p_pkt, NULL, 0);
 	coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, "topic", strlen("topic"));
 	coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_QUERY, "root:root", strlen("root:root"));
 	coap_pkt_add_data(p_pkt, p_data, len);
 	
-	sendto(p_node->m_servsock, (const char *)&p_pkt->hdr, p_pkt->pkt_len, 0, 
-		(struct sockaddr *)&p_node->m_servaddr, sizeof(p_node->m_servaddr));
+	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->pkt_len, 0, 
+		(struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
 
 	return 0;
 }
