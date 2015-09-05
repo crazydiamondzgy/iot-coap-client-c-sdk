@@ -4,6 +4,11 @@
 #include <string.h>
 #include "coap_packet.h"
 
+int coap_pkt_is_valid(coap_pkt_t * p_pkt)
+{
+	return 1;
+}
+
 coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id) 
 {
 	coap_pkt_t * p_pkt = NULL;

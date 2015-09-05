@@ -59,12 +59,12 @@ int coap_connect(char * p_str_addr, int port)
 	p_host = gethostbyname(p_str_addr);
 	if (p_host && p_host->h_addr_list[0]) 
 	{
-		p_endpoint = (coap_endpoint_t *)malloc(sizeof(coap_endpoint_t));
+		p_endpoint = coap_alloc_endpoint(&__coap_endpoint_mgr);
 		p_endpoint->m_servsock = socket(AF_INET, SOCK_DGRAM, 0);
 		p_endpoint->m_servaddr.sin_family = AF_INET;
 		p_endpoint->m_servaddr.sin_addr.s_addr = *(u_long *)p_host->h_addr_list[0];
 		p_endpoint->m_servaddr.sin_port = htons((int16)port);
-
+		
 		coap_set_endpoint(&__coap_endpoint_mgr, unused_endpoint_index, p_endpoint);
 
 		return unused_endpoint_index;
@@ -77,6 +77,20 @@ int coap_connect(char * p_str_addr, int port)
 
 int coap_close(int s)
 {
+	int ret = 0;
+	
+	ret = coap_free_endpoint(&__coap_endpoint_mgr, s);
+	if (ret < 0)
+	{
+		return ret;
+	}
+
+	ret = coap_set_endpoint(&__coap_endpoint_mgr, s, NULL);
+	if (ret < 0)
+	{
+		return ret;
+	}
+
 	return 0;
 }
 
@@ -120,11 +134,14 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 	
 	coap_pkt_add_data(p_pkt, p_data, len);
 	
+	p_pkt->last_transmit_time = coap_get_milliseconds();
+	p_pkt->retransmit_count = 0;
+	p_pkt->retransmit_interval = COAP_ACK_TIMEOUT;
+
 	mutex_lock(&p_endpoint->m_send_mutex);
 	coap_queue_push(p_endpoint, p_pkt);
 	mutex_unlock(&p_endpoint->m_send_mutex);
 	
-	p_pkt->last_transmit_time = coap_get_milliseconds();
 	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
 
 	return 0;
@@ -138,7 +155,6 @@ int coap_recv(int s, char * p_data, int len)
 	{
 		return COAP_RET_INVALID_PARAMETERS;
 	}
-
 
 	mutex_lock(&p_endpoint->m_recv_mutex);
 	ret = coap_queue_pop(p_endpoint, p_data, len);

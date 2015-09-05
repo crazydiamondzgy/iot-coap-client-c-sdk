@@ -10,14 +10,81 @@
 #include "coap_util.h"
 #include "coap_packet.h"
 #include "coap_endpoint.h"
+#include "coap_client.h"
 
-void coap_check_timeouts()
+coap_endpoint_t * coap_alloc_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr)
 {
+	coap_endpoint_t * p_endpoint = (coap_endpoint_t *)malloc(sizeof(coap_endpoint_t));
+	
+	queue_init(&p_endpoint->m_send_queue);
+	queue_init(&p_endpoint->m_recv_queue);
+	mutex_init(&p_endpoint->m_send_mutex);
+	mutex_init(&p_endpoint->m_recv_mutex);
+	
+	return p_endpoint;
 }
 
-int coap_is_valid_packet(coap_pkt_t * p_pkt)
+int coap_free_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 {
-	return 1;
+	coap_pkt_t * p_pkt = NULL;
+	
+	coap_endpoint_t * p_endpoint = coap_get_endpoint(p_endpoint_mgr, i);
+	if (NULL == p_endpoint)
+	{
+		return COAP_RET_INVALID_PARAMETERS;
+	}
+
+	while (!queue_is_empty(&p_endpoint->m_send_queue)) 
+	{
+		p_pkt = queue_entry(p_endpoint->m_send_queue.next, coap_pkt_t, node);
+		queue_del(&p_pkt->node);
+		free(p_pkt);
+	}
+	
+	while (!queue_is_empty(&p_endpoint->m_recv_queue)) 
+	{
+		p_pkt = queue_entry(p_endpoint->m_recv_queue.next, coap_pkt_t, node);
+		queue_del(&p_pkt->node);
+		free(p_pkt);
+	}
+
+	mutex_uninit(&p_endpoint->m_send_mutex);
+	mutex_uninit(&p_endpoint->m_recv_mutex);
+
+	return 0;
+}
+
+void coap_check_timeouts(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
+{
+	struct queue_hdr_t *p = NULL, *next = NULL;
+	coap_endpoint_t * p_endpoint = coap_get_endpoint(p_endpoint_mgr, i);
+	if (NULL == p_endpoint)
+	{
+		return;
+	}
+
+	for (p = p_endpoint->m_send_queue.next; p != &p_endpoint->m_send_queue; p = next)
+	{
+		coap_pkt_t * p_pkt = queue_entry(p, coap_pkt_t, node);
+		next = p->next;
+		if (p_pkt->last_transmit_time + p_pkt->retransmit_interval > p_endpoint_mgr->m_endpoint_mgr_time_cache) 
+		{
+			if (p_pkt->retransmit_count < COAP_MAX_RETRANSMIT)
+			{
+				sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
+				p_pkt->last_transmit_time = coap_get_milliseconds();
+				p_pkt->retransmit_interval <<= 1;
+				p_pkt->retransmit_count++;
+			}
+			else
+			{
+				coap_free_endpoint(p_endpoint_mgr, i);
+				break;
+			}
+		}
+	}
+
+	return;
 }
 
 #ifndef _WIN32
@@ -42,9 +109,12 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 		struct timeval tv;
 		p_endpoint_mgr->m_endpoint_mgr_time_cache = coap_get_milliseconds();
 
-		coap_check_timeouts();
+		for (i = 0; i < COAP_MAX_ENDPOINTS; i++)
+		{
+			coap_check_timeouts(p_endpoint_mgr, i);
+		}
 
-		for (FD_ZERO(&rfds); i < COAP_MAX_ENDPOINTS; i++)
+		for (i = 0, FD_ZERO(&rfds); i < COAP_MAX_ENDPOINTS; i++)
 		{
 			coap_endpoint_t * p_endpoint = coap_get_endpoint(p_endpoint_mgr, i);
 			if (p_endpoint)
@@ -92,7 +162,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 						continue;
 					}
 					
-					if (0 == coap_is_valid_packet(p_pkt)) 
+					if (0 == coap_pkt_is_valid(p_pkt)) 
 					{
 						continue;
 					}
@@ -130,14 +200,6 @@ int coap_init_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 	coap_clear_endpoints(p_endpoint_mgr);
 
 	p_endpoint_mgr->m_endpoint_mgr_is_running = 1;
-	
-	for (; i < COAP_MAX_ENDPOINTS; i++)
-	{
-		queue_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_send_queue);
-		queue_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_recv_queue);
-		mutex_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_send_mutex);
-		mutex_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_recv_mutex);
-	}
 	
 #ifndef _WIN32
 	pthread_create(&p_endpoint_mgr->m_endpoint_mgr_thread, NULL, coap_work_thread, p_endpoint_mgr);

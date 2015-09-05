@@ -71,6 +71,8 @@ typedef struct {
 	size_t      len;
 	uint16      max_delta;
 	uint32      last_transmit_time;
+	uint32      retransmit_count;
+	uint32      retransmit_interval;
 	coap_hdr_t  hdr;
 } coap_pkt_t;
 
@@ -79,5 +81,6 @@ int coap_pkt_free(coap_pkt_t * p_pkt);
 int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len);
 int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_data, size_t option_len);
 int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * data, size_t data_len);
+int coap_pkt_is_valid(coap_pkt_t * p_pkt);
 
 #endif
