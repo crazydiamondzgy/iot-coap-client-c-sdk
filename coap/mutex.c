@@ -1,9 +1,7 @@
-#include "coap_mutex.h"
+#include "mutex.h"
 
-coap_mutex_t * coap_mutex_alloc()
+void mutex_init(mutex_t * p_mutex)
 {
-	coap_mutex_t * p_mutex = (coap_mutex_t *)malloc(sizeof(coap_mutex_t));
-
 #ifdef WINDOWS
 	p_mutex->m_mutex = CreateMutex(NULL, FALSE, NULL);
 #else
@@ -11,11 +9,9 @@ coap_mutex_t * coap_mutex_alloc()
 	pthread_mutexattr_init(&mattr);
 	pthread_mutex_init(&p_mutex->m_mutex, &mattr);
 #endif
-
-	return p_mutex;
 }
 
-void coap_mutex_free(coap_mutex_t * p_mutex)
+void mutex_uninit(mutex_t * p_mutex)
 {
 #ifdef WINDOWS
 	WaitForSingleObject(p_mutex->m_mutex, INFINITE);
@@ -25,9 +21,11 @@ void coap_mutex_free(coap_mutex_t * p_mutex)
 	pthread_mutex_unlock(&p_mutex->m_mutex);
 	pthread_mutex_destroy(&p_mutex->m_mutex);
 #endif
+
+	free(p_mutex);
 }
 
-void coap_mutex_lock(coap_mutex_t * p_mutex)
+void mutex_lock(mutex_t * p_mutex)
 {
 #ifdef WINDOWS
 	WaitForSingleObject(p_mutex->m_mutex,INFINITE);
@@ -36,7 +34,7 @@ void coap_mutex_lock(coap_mutex_t * p_mutex)
 #endif
 }
 
-void coap_mutex_unlock(coap_mutex_t * p_mutex)
+void mutex_unlock(mutex_t * p_mutex)
 {
 #ifdef WINDOWS
 	ReleaseMutex(p_mutex->m_mutex);

@@ -67,9 +67,10 @@ typedef struct {
 
 typedef struct {
 	queue_hdr_t node;
-	size_t      pkt_size;
-	size_t      pkt_len;
+	size_t      size;
+	size_t      len;
 	uint16      max_delta;
+	uint32      last_transmit_time;
 	coap_hdr_t  hdr;
 } coap_pkt_t;
 

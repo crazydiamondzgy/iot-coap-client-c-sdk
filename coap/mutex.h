@@ -1,5 +1,5 @@
-#ifndef __COAP_MUTEX_H__
-#define __COAP_MUTEX_H__
+#ifndef __MUTEX_H__
+#define __MUTEX_H__
 
 #ifndef WINDOWS
 #if defined(_WIN32) || defined(_WIN64)
@@ -20,11 +20,11 @@ typedef struct
 #else
 	pthread_mutex_t m_mutex;
 #endif
-} coap_mutex_t;
+} mutex_t;
 
-coap_mutex_t * coap_mutex_alloc();
-void coap_mutex_free(coap_mutex_t * p_mutex);
-void coap_mutex_lock(coap_mutex_t * p_mutex);
-void coap_mutex_unlock(coap_mutex_t * p_mutex);
+void mutex_init(mutex_t * p_mutex);
+void mutex_uninit(mutex_t * p_mutex);
+void mutex_lock(mutex_t * p_mutex);
+void mutex_unlock(mutex_t * p_mutex);
 
 #endif

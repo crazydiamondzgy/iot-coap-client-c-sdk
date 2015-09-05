@@ -130,10 +130,6 @@ SOURCE=..\..\coap\coap_packet.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_queue.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\coap\coap_type.h
 # End Source File
 # Begin Source File
@@ -147,6 +143,10 @@ SOURCE=..\..\coap\coap_util.h
 # Begin Source File
 
 SOURCE=..\..\coap\os_support.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\queue.h
 # End Source File
 # End Target
 # End Project

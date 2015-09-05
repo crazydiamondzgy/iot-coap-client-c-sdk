@@ -1,9 +1,15 @@
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+
 #include <assert.h>
 
-#include "coap_endpoint.h"
+#include "queue.h"
+#include "mutex.h"
 #include "coap_log.h"
 #include "coap_util.h"
 #include "coap_packet.h"
+#include "coap_endpoint.h"
 
 void coap_check_timeouts()
 {
@@ -118,11 +124,20 @@ int coap_clear_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 
 int coap_init_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 {
+	int i = 0;
 	assert(p_endpoint_mgr);
 
 	coap_clear_endpoints(p_endpoint_mgr);
 
 	p_endpoint_mgr->m_endpoint_mgr_is_running = 1;
+	
+	for (; i < COAP_MAX_ENDPOINTS; i++)
+	{
+		queue_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_send_queue);
+		queue_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_recv_queue);
+		mutex_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_send_mutex);
+		mutex_init(&p_endpoint_mgr->m_coap_endpoints[i]->m_recv_mutex);
+	}
 	
 #ifndef _WIN32
 	pthread_create(&p_endpoint_mgr->m_endpoint_mgr_thread, NULL, coap_work_thread, p_endpoint_mgr);
@@ -173,4 +188,44 @@ int coap_set_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i, coap_endpoint
 	}
 
 	return -1;
+}
+
+int coap_queue_push(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt)
+{
+	assert(p_endpoint);
+	assert(p_pkt);
+	
+	queue_init(&p_pkt->node);
+	queue_add_tail(&p_pkt->node, &p_endpoint->m_send_queue);
+	p_endpoint->m_send_queue_pkt_num++;	
+	
+	return 0;
+}
+
+int coap_queue_pop(coap_endpoint_t * p_endpoint, char * buffer, size_t len)
+{
+	coap_pkt_t * p_pkt = NULL;
+
+	assert(p_endpoint);
+	assert(buffer);
+	assert(len > 0);
+
+	if (queue_is_empty(&p_endpoint->m_recv_queue))
+	{
+		return 0;
+	}
+	
+	p_pkt = queue_entry(&p_endpoint->m_recv_queue, coap_pkt_t, node);
+	
+	if (p_pkt->len > len)
+	{
+		return -1;
+	}
+	
+	memcpy(buffer, &p_pkt->hdr, p_pkt->len);
+	queue_del(&p_pkt->node);
+	free(p_pkt);
+	p_endpoint->m_recv_queue_pkt_num--;
+	
+	return len;
 }

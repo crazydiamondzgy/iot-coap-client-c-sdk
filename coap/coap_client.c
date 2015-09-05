@@ -1,4 +1,5 @@
 #include "os_support.h"
+#include "coap_util.h"
 #include "coap_client.h"
 #include "coap_endpoint.h"
 #include "coap_packet.h"
@@ -79,10 +80,18 @@ int coap_close(int s)
 	return 0;
 }
 
-int coap_send(int s, char * p_method, char * p_uri, char * p_data, int len) 
+int coap_send(int s, char * p_method, char * p_url, char * p_data, int len) 
 {
+	char * p_path = p_url;
+	char * p_query = strchr(p_url, '?') ? strchr(p_url, '?') : p_url + strlen(p_url);
+	char * p_end = p_url + strlen(p_url);
+	char * p = NULL;
 	coap_pkt_t * p_pkt = NULL;
 	coap_endpoint_t * p_endpoint = coap_get_endpoint(&__coap_endpoint_mgr, s);
+	if (NULL == p_endpoint)
+	{
+		return COAP_RET_INVALID_PARAMETERS;
+	}
 
 	if (0 == strncasecmp(p_method, "GET", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0);
 	if (0 == strncasecmp(p_method, "PUT", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0);
@@ -90,17 +99,50 @@ int coap_send(int s, char * p_method, char * p_uri, char * p_data, int len)
 	if (0 == strncasecmp(p_method, "DELETE", 7)) p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0);
 
 	coap_pkt_add_token(p_pkt, NULL, 0);
-	coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, "topic", strlen("topic"));
-	coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_QUERY, "root:root", strlen("root:root"));
+
+	for (p=p_path; p<=p_query; p++)
+	{
+		if (*p == '/' || p == p_query)
+		{
+			coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_PATH, p_path, p - p_path);
+			p_path = p + 1;
+		}
+	}
+
+	for (++p_query; p<=p_end; p++)
+	{
+		if (*p == '&' || p == p_end)
+		{
+			coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_URI_QUERY, p_query, p - p_query);
+			p_query = p + 1;
+		}
+	}
+	
 	coap_pkt_add_data(p_pkt, p_data, len);
 	
-	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->pkt_len, 0, 
-		(struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
+	mutex_lock(&p_endpoint->m_send_mutex);
+	coap_queue_push(p_endpoint, p_pkt);
+	mutex_unlock(&p_endpoint->m_send_mutex);
+	
+	p_pkt->last_transmit_time = coap_get_milliseconds();
+	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
 
 	return 0;
 }
 
 int coap_recv(int s, char * p_data, int len)
 {
-	return 0;
+	int ret = 0;
+	coap_endpoint_t * p_endpoint = coap_get_endpoint(&__coap_endpoint_mgr, s);
+	if (NULL == p_endpoint)
+	{
+		return COAP_RET_INVALID_PARAMETERS;
+	}
+
+
+	mutex_lock(&p_endpoint->m_recv_mutex);
+	ret = coap_queue_pop(p_endpoint, p_data, len);
+	mutex_unlock(&p_endpoint->m_recv_mutex);
+
+	return ret;
 }

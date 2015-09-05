@@ -6,13 +6,6 @@
 #include <time.h>
 #include <string.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#pragma warning(disable:4127)
-#else
-#include <sys/time.h>
-#endif
-
 #include "coap_type.h"
 
 #define COAP_LOG_MAX_BUFSIZE   4096

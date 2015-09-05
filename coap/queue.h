@@ -11,7 +11,7 @@ typedef struct queue_hdr_t
 #define queue_entry(ptr, type, member) ((type*)( ((char*)((type*)ptr)) - ((size_t) &((type *)0)->member)))
 #define queue_add_head(node, head) ((node)->prev = (head), (node)->next = (head)->next, (head)->next->prev = (node), (head)->next = (node))
 #define queue_add_tail(node, head) ((node)->prev = (head)->prev, (node)->next = (head), (head)->prev->next = (node), (head)->prev = (node))
-#define queue_delete(entry) ((entry)->next->prev = (entry)->prev, (entry)->prev->next = (entry)->next, (entry)->next = 0, (entry)->prev = 0)
+#define queue_del(entry) ((entry)->next->prev = (entry)->prev, (entry)->prev->next = (entry)->next, (entry)->next = 0, (entry)->prev = 0)
 #define queue_is_empty(entry) ((entry) == (entry)->next)
 
 #define IQUEUE_FOREACH(iterator, head, TYPE, MEMBER) \

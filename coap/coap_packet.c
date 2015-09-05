@@ -12,8 +12,8 @@ coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id)
 	if (p_pkt) 
 	{
 		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
-		p_pkt->pkt_size       = COAP_MAX_PKT_SIZE;
-		p_pkt->pkt_len        = 4;
+		p_pkt->size       = COAP_MAX_PKT_SIZE;
+		p_pkt->len        = 4;
 		p_pkt->hdr.version    = 1;
 		p_pkt->hdr.type       = type;
 		p_pkt->hdr.code       = code;
@@ -32,8 +32,8 @@ int coap_pkt_free(coap_pkt_t * p_pkt)
 
 int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len) 
 {
-	size_t pkt_len = token_len + p_pkt->pkt_len;
-	if (!p_pkt || token_len > 8 || p_pkt->pkt_size < pkt_len)
+	size_t pkt_len = token_len + p_pkt->len;
+	if (!p_pkt || token_len > 8 || p_pkt->size < pkt_len)
 	{
 		return -1;
 	}
@@ -44,20 +44,25 @@ int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len)
 	}
 	
 	p_pkt->hdr.token_len = token_len;
-	p_pkt->pkt_len = pkt_len;
+	p_pkt->len = pkt_len;
 	p_pkt->max_delta = 0;
 	
 	return 0;
 }
 
 int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_data, size_t option_len) {
-	uint8 * p_opt = (uint8 *)&p_pkt->hdr + p_pkt->pkt_len;
+	uint8 * p_opt = (uint8 *)&p_pkt->hdr + p_pkt->len;
 	uint16 option_delta = option_type - p_pkt->max_delta;
 	int i = 0;
 	
-	if (option_type < p_pkt->max_delta)
+	if (0 == option_len)
 	{
 		return -1;
+	}
+
+	if (option_type < p_pkt->max_delta)
+	{
+		return -2;
 	}
 	
 	if (option_delta < 13)
@@ -92,33 +97,30 @@ int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_d
 		p_opt[++i] = (option_len - 269) & 0xFF;
 	}
 	
-	if (option_len > 0)
-	{
-		memcpy(p_opt + i + 1, option_data, option_len);
-	}
+	memcpy(p_opt + i + 1, option_data, option_len);
 	
 	p_pkt->max_delta = option_type;
-	p_pkt->pkt_len += option_len + i + 1;
+	p_pkt->len += option_len + i + 1;
 
 	return 0;
 }
 
 int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * p_data, size_t data_len) 
 {
-	uint8 * p = (uint8 *)&p_pkt->hdr + p_pkt->pkt_len;
+	uint8 * p = (uint8 *)&p_pkt->hdr + p_pkt->len;
 	if (data_len == 0)
 	{
 		return -1;
 	}
 	
-	if (p_pkt->pkt_len + data_len + 1 > p_pkt->pkt_size)
+	if (p_pkt->len + data_len + 1 > p_pkt->size)
 	{
 		return -2;
 	}
 	
 	*p++ = 0xFF;
 	memcpy(p, p_data, data_len);
-	p_pkt->pkt_len += data_len + 1;
+	p_pkt->len += data_len + 1;
 	
 	return 0;
 }
