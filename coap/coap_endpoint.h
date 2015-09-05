@@ -38,7 +38,9 @@ int coap_clear_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr);
 int coap_init_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr);
 int coap_set_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i, coap_endpoint_t * p_endpoint);
 int coap_free_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i);
-int coap_queue_push(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt);
-int coap_queue_pop(coap_endpoint_t * p_endpoint, char * buffer, size_t len);
+int coap_send_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt);
+int coap_send_queue_del_node(coap_endpoint_t * p_endpoint, uint16 message_id);
+int coap_recv_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt);
+int coap_recv_queue_pop_node(coap_endpoint_t * p_endpoint, char * buffer, size_t len);
 
 #endif

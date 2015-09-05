@@ -107,10 +107,29 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 		return COAP_RET_INVALID_PARAMETERS;
 	}
 
-	if (0 == strncasecmp(p_method, "GET", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0);
-	if (0 == strncasecmp(p_method, "PUT", 7))    p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0);
-	if (0 == strncasecmp(p_method, "POST", 7))   p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, 0);
-	if (0 == strncasecmp(p_method, "DELETE", 7)) p_pkt = coap_pkt_init(COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0);
+	if (0 == strncasecmp(p_method, "GET", 7))
+	{
+		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0);
+	}
+
+	if (0 == strncasecmp(p_method, "PUT", 7))
+	{
+		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0);
+	}
+
+	if (0 == strncasecmp(p_method, "POST", 7))
+	{
+		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, 0);
+	}
+
+	if (0 == strncasecmp(p_method, "DELETE", 7))
+	{
+		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0);
+	}
 
 	coap_pkt_add_token(p_pkt, NULL, 0);
 
@@ -139,7 +158,7 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 	p_pkt->retransmit_interval = COAP_ACK_TIMEOUT;
 
 	mutex_lock(&p_endpoint->m_send_mutex);
-	coap_queue_push(p_endpoint, p_pkt);
+	coap_send_queue_push_node(p_endpoint, p_pkt);
 	mutex_unlock(&p_endpoint->m_send_mutex);
 	
 	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
@@ -157,7 +176,7 @@ int coap_recv(int s, char * p_data, int len)
 	}
 
 	mutex_lock(&p_endpoint->m_recv_mutex);
-	ret = coap_queue_pop(p_endpoint, p_data, len);
+	ret = coap_recv_queue_pop_node(p_endpoint, p_data, len);
 	mutex_unlock(&p_endpoint->m_recv_mutex);
 
 	return ret;

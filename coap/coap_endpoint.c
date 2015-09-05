@@ -79,6 +79,7 @@ void coap_check_timeouts(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 			else
 			{
 				coap_free_endpoint(p_endpoint_mgr, i);
+				coap_set_endpoint(p_endpoint_mgr, i, NULL);
 				break;
 			}
 		}
@@ -150,7 +151,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 
 				if (FD_ISSET(p_endpoint->m_servsock, &rfds))
 				{
-					coap_pkt_t * p_pkt = (coap_pkt_t *)buf;
+					coap_pkt_t * p_pkt = NULL;
 					memset(buf, 0, COAP_MAX_PKT_SIZE);
 					memset(&sockaddr, 0, sizeof(sockaddr));
 					
@@ -164,11 +165,18 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 					
 					if (0 == coap_pkt_is_valid(p_pkt)) 
 					{
+						coap_log_debug_string("Incorrect Packet\r\n");
+						coap_log_debug_binary(buf, len);
 						continue;
 					}
 					
-					coap_log_debug_string("## Incorrect Packet\r\n");
-					coap_log_debug_binary(buf, len);
+					p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+					p_pkt->len = len;
+					memcpy(&p_pkt->hdr, buf, len);
+
+					mutex_lock(&p_endpoint->m_recv_mutex);
+					coap_recv_queue_push_node(p_endpoint, p_pkt);
+					mutex_unlock(&p_endpoint->m_recv_mutex);
 				}
 			}
 		}
@@ -252,7 +260,7 @@ int coap_set_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i, coap_endpoint
 	return -1;
 }
 
-int coap_queue_push(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt)
+int coap_send_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt)
 {
 	assert(p_endpoint);
 	assert(p_pkt);
@@ -264,7 +272,43 @@ int coap_queue_push(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt)
 	return 0;
 }
 
-int coap_queue_pop(coap_endpoint_t * p_endpoint, char * buffer, size_t len)
+int coap_recv_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt)
+{
+	assert(p_endpoint);
+	assert(p_pkt);
+	
+	queue_init(&p_pkt->node);
+	queue_add_tail(&p_pkt->node, &p_endpoint->m_recv_queue);
+	p_endpoint->m_send_queue_pkt_num++;	
+	
+	return 0;
+}
+
+int coap_send_queue_del_node(coap_endpoint_t * p_endpoint, uint16 message_id)
+{
+	coap_pkt_t * p_pkt = NULL;
+	queue_hdr_t * p = NULL;
+	queue_hdr_t * next = NULL;
+
+	assert(p_endpoint);
+	
+	for (p = p_endpoint->m_send_queue.next; p != &p_endpoint->m_send_queue; p = next)
+	{
+		coap_pkt_t * p_pkt = queue_entry(p, coap_pkt_t, node);
+		next = p->next;
+		if (p_pkt->hdr.message_id == message_id) 
+		{
+			queue_del(&p_pkt->node);
+			free(p_pkt);
+			p_endpoint->m_send_queue_pkt_num--;		
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+int coap_recv_queue_pop_node(coap_endpoint_t * p_endpoint, char * buffer, size_t len)
 {
 	coap_pkt_t * p_pkt = NULL;
 

@@ -9,22 +9,15 @@ int coap_pkt_is_valid(coap_pkt_t * p_pkt)
 	return 1;
 }
 
-coap_pkt_t * coap_pkt_init(uint8 type, uint8 code, uint16 message_id) 
+coap_pkt_t * coap_pkt_alloc(size_t len)
 {
-	coap_pkt_t * p_pkt = NULL;
-
-	p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
+	coap_pkt_t * p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
 	if (p_pkt) 
 	{
 		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
-		p_pkt->size       = COAP_MAX_PKT_SIZE;
-		p_pkt->len        = 4;
-		p_pkt->hdr.version    = 1;
-		p_pkt->hdr.type       = type;
-		p_pkt->hdr.code       = code;
-		p_pkt->hdr.message_id = message_id;
+		p_pkt->size = COAP_MAX_PKT_SIZE;
 	}
-	
+
 	return p_pkt;
 }
 
@@ -32,6 +25,17 @@ int coap_pkt_free(coap_pkt_t * p_pkt)
 {
 	free(p_pkt);
 
+	return 0;
+}
+
+int coap_pkt_add_header(coap_pkt_t * p_pkt, uint8 type, uint8 code, uint16 message_id) 
+{
+	p_pkt->len            = 4;
+	p_pkt->hdr.version    = 1;
+	p_pkt->hdr.type       = type;
+	p_pkt->hdr.code       = code;
+	p_pkt->hdr.message_id = message_id;
+	
 	return 0;
 }
 

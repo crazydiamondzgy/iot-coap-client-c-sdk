@@ -8,6 +8,7 @@ Copyright (C) 2014--2015 by crazydiamondzgy
 2. Both synchronous and asynchronous mode for OS and NON-OS system
 3. Performance highly optimized for the embeded system.
 4. Support all the platform I hope.
+5. Multiple endpoints supported.  
 
 ## Compatibility
 
