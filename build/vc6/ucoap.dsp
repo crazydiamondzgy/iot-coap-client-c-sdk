@@ -106,14 +106,6 @@ SOURCE=..\..\coap\coap_log.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_mutex.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\coap\coap_mutex.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\coap\coap_option.c
 # End Source File
 # Begin Source File
@@ -139,6 +131,14 @@ SOURCE=..\..\coap\coap_util.c
 # Begin Source File
 
 SOURCE=..\..\coap\coap_util.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\mutex.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\coap\mutex.h
 # End Source File
 # Begin Source File
 
