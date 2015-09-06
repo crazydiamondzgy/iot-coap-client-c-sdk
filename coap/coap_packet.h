@@ -56,6 +56,10 @@
 #define COAP_PKT_OPTION_PROXY_SCHEME           39
 #define COAP_PKT_OPTION_SIZE1                  60
 
+#define COAP_PKT_IS_EMPTY(MSG)                 ((MSG)->code == 0)
+#define COAP_PKT_IS_REQUEST(MSG)               (!COAP_PKT_IS_EMPTY(MSG) && ((MSG)->code < 32))
+#define COAP_PKT_IS_RESPONSE(MSG)              ((MSG)->code >= 64)
+
 typedef struct {
 	uint8  token_len:4;
 	uint8  type:2;

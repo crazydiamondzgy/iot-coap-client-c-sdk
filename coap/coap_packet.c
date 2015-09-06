@@ -11,10 +11,10 @@ int coap_pkt_is_valid(coap_pkt_t * p_pkt)
 
 coap_pkt_t * coap_pkt_alloc(size_t len)
 {
-	coap_pkt_t * p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
+	coap_pkt_t * p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + len);
 	if (p_pkt) 
 	{
-		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + COAP_MAX_PKT_SIZE);
+		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + len);
 		p_pkt->size = COAP_MAX_PKT_SIZE;
 	}
 

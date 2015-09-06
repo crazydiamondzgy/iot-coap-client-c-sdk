@@ -88,6 +88,48 @@ void coap_check_timeouts(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 	return;
 }
 
+void coap_dispatch(coap_endpoint_t * p_endpoint, char * buf, int len) 
+{
+	coap_hdr_t * p_hdr = (coap_hdr_t *)buf;
+	assert(p_endpoint);
+	
+    switch (p_hdr->type)
+	{
+    case COAP_PKT_TYPE_ACK:
+		coap_send_queue_del_node(p_endpoint, p_hdr->message_id);
+		if (p_hdr->code == 0) goto cleanup;
+		break;
+		
+    case COAP_PKT_TYPE_RST:
+		coap_send_queue_del_node(p_endpoint, p_hdr->message_id);
+		goto cleanup;
+		
+    case COAP_PKT_TYPE_NON:
+		break;
+		
+    case COAP_PKT_TYPE_CON :
+		break;
+    default: 
+		break;
+    }
+	
+	if (!COAP_PKT_IS_EMPTY(p_hdr))
+	{
+		coap_pkt_t * p_pkt = coap_pkt_alloc(len);
+		p_pkt->len = len;
+		memcpy(&p_pkt->hdr, buf, len);
+		
+		mutex_lock(&p_endpoint->m_recv_mutex);
+		coap_recv_queue_push_node(p_endpoint, p_pkt);
+		mutex_unlock(&p_endpoint->m_recv_mutex);
+	}
+    
+	return;
+
+cleanup:
+    return;
+}
+
 #ifndef _WIN32
 void * coap_work_thread(void * p_void)
 #else
@@ -151,7 +193,6 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 
 				if (FD_ISSET(p_endpoint->m_servsock, &rfds))
 				{
-					coap_pkt_t * p_pkt = NULL;
 					memset(buf, 0, COAP_MAX_PKT_SIZE);
 					memset(&sockaddr, 0, sizeof(sockaddr));
 					
@@ -163,20 +204,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 						continue;
 					}
 					
-					if (0 == coap_pkt_is_valid(p_pkt)) 
-					{
-						coap_log_debug_string("Incorrect Packet\r\n");
-						coap_log_debug_binary(buf, len);
-						continue;
-					}
-					
-					p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
-					p_pkt->len = len;
-					memcpy(&p_pkt->hdr, buf, len);
-
-					mutex_lock(&p_endpoint->m_recv_mutex);
-					coap_recv_queue_push_node(p_endpoint, p_pkt);
-					mutex_unlock(&p_endpoint->m_recv_mutex);
+					coap_dispatch(p_endpoint, buf, len);
 				}
 			}
 		}
