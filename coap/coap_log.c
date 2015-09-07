@@ -224,6 +224,10 @@ void coap_log_debug_binary(char * buf, int buflen)
 
 void coap_log_debug_packet(buf, buflen)
 {
+	uint8 code_class = 0;
+	uint8 code_detail = 0;
+	uint16 message_id = 0;
+	char * type;
 	char tmp[COAP_LOG_MAX_BUFSIZE];
 	coap_hdr_t * p_hdr = (coap_hdr_t *)buf;
 	memset(tmp, 0, sizeof(tmp));
@@ -233,10 +237,22 @@ void coap_log_debug_packet(buf, buflen)
 		return;
 	}
 
+	switch (p_hdr->type)
+	{
+	case 0: type = "CON"; break;
+	case 1: type = "NON"; break;
+	case 2: type = "ACK"; break;
+	case 3: type = "RST"; break;
+	default: return;
+	}
+
+	code_class = p_hdr->code >> 5;
+	code_detail = p_hdr->code & 0x1F;
+	message_id = (p_hdr->message_id >> 8 ) | ((p_hdr->message_id & 0xFF) << 8);
 	coap_log_print_header(COAP_LOG_LEVEL_DEBUG, __FILENAME__, __LINE__);
 
-	snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "ver=%d, type=%d, tkl=%d, msg=%X, id=%X\r\n", 
-		p_hdr->version, p_hdr->type, p_hdr->token_len, p_hdr->code, p_hdr->message_id);
+	snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "ver=%d, type=%s, tkl=%d, code=%X.%02X, id=%04X\r\n", 
+		p_hdr->version, type, p_hdr->token_len, code_class, code_detail, message_id);
 	
 	coap_log_print(tmp, COAP_LOG_LEVEL_DEBUG);
 	

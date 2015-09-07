@@ -1,17 +1,3 @@
-
-
-
-
-
-
-Internet Engineering Task Force (IETF)                         Z. Shelby
-Request for Comments: 7252                                           ARM
-Category: Standards Track                                      K. Hartke
-ISSN: 2070-1721                                               C. Bormann
-                                                 Universitaet Bremen TZI
-                                                               June 2014
-
-
               The Constrained Application Protocol (CoAP)
 
 Abstract
@@ -47,18 +33,6 @@ Status of This Memo
    Information about the current status of this document, any errata,
    and how to provide feedback on it may be obtained at
    http://www.rfc-editor.org/info/rfc7252.
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                    [Page 1]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
 Copyright Notice
 
@@ -108,14 +82,6 @@ Table of Contents
      5.3.  Request/Response Matching . . . . . . . . . . . . . . . .  34
        5.3.1.  Token . . . . . . . . . . . . . . . . . . . . . . . .  34
        5.3.2.  Request/Response Matching Rules . . . . . . . . . . .  35
-
-
-
-Shelby, et al.               Standards Track                    [Page 2]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
      5.4.  Options . . . . . . . . . . . . . . . . . . . . . . . . .  36
        5.4.1.  Critical/Elective . . . . . . . . . . . . . . . . . .  37
        5.4.2.  Proxy Unsafe or Safe-to-Forward and NoCacheKey  . . .  38
@@ -164,14 +130,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
      7.1.  Service Discovery . . . . . . . . . . . . . . . . . . . .  64
      7.2.  Resource Discovery  . . . . . . . . . . . . . . . . . . .  64
        7.2.1.  'ct' Attribute  . . . . . . . . . . . . . . . . . . .  64
-
-
-
-Shelby, et al.               Standards Track                    [Page 3]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    8.  Multicast CoAP  . . . . . . . . . . . . . . . . . . . . . . .  65
      8.1.  Messaging Layer . . . . . . . . . . . . . . . . . . . . .  65
      8.2.  Request/Response Layer  . . . . . . . . . . . . . . . . .  66
@@ -220,13 +178,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
      14.2.  Informative References . . . . . . . . . . . . . . . . . 100
    Appendix A.  Examples . . . . . . . . . . . . . . . . . . . . . . 104
    Appendix B.  URI Examples . . . . . . . . . . . . . . . . . . . . 110
-
-
-
-Shelby, et al.               Standards Track                    [Page 4]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
 1.  Introduction
 
@@ -277,13 +228,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 
    o  Simple proxy and caching capabilities.
 
-
-
-Shelby, et al.               Standards Track                    [Page 5]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    o  A stateless HTTP mapping, allowing proxies to be built providing
       access to CoAP resources via HTTP in a uniform way or for HTTP
       simple interfaces to be realized alternatively over CoAP.
@@ -332,13 +276,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    Server
       The destination endpoint of a request; the originating endpoint of
       a response.
-
-
-
-Shelby, et al.               Standards Track                    [Page 6]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
    Origin Server
       The server on which a given resource resides or is to be created.
@@ -389,13 +326,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
       makes very specific demands of CoAP-to-CoAP proxies, there is more
       variation possible in cross-proxies.
 
-
-
-Shelby, et al.               Standards Track                    [Page 7]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    Confirmable Message
       Some messages require an acknowledgement.  These messages are
       called "Confirmable".  When no packets are lost, each Confirmable
@@ -438,19 +368,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    Empty Message
       A message with a Code of 0.00; neither a request nor a response.
       An Empty message only contains the 4-byte header.
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                    [Page 8]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
    Critical Option
       An option that would need to be understood by the endpoint
@@ -501,13 +418,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    familiar from the programming language C, except that the operator
    "**" stands for exponentiation.
 
-
-
-Shelby, et al.               Standards Track                    [Page 9]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
 2.  Constrained Application Protocol
 
    The interaction model of CoAP is similar to the client/server model
@@ -551,19 +461,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 
                     Figure 1: Abstract Layering of CoAP
 
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 10]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
 2.1.  Messaging Model
 
    The CoAP messaging model is based on the exchange of messages over
@@ -606,20 +503,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    0x01a0); see Figure 3.  When a recipient is not able to process a
    Non-confirmable message, it may reply with a Reset message (RST).
 
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 11]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
                         Client              Server
                            |                  |
                            |   NON [0x01a0]   |
@@ -660,21 +543,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    piggybacked response is lost.)  Two examples for a basic GET request
    with piggybacked response are shown in Figure 4, one successful, one
    resulting in a 4.04 (Not Found) response.
-
-
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 12]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
         Client              Server       Client              Server
            |                  |             |                  |
@@ -1116,14 +984,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    Section 9): With no security, the endpoint is solely identified by an
    IP address and a UDP port number.  With other security modes, the
    endpoint is identified as defined by the security mode.
-
-
-
-Shelby, et al.               Standards Track                   [Page 20]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    There are different types of messages.  The type of a message is
    specified by the Type field of the CoAP Header.
 
@@ -2683,15 +2543,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    Like HTTP 201 "Created", but only used in response to POST and PUT
    requests.  The payload returned with the response, if any, is a
    representation of the action result.
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 48]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    If the response includes one or more Location-Path and/or Location-
    Query Options, the values of these options specify the location at
    which the resource was created.  Otherwise, the resource was created
@@ -2736,17 +2587,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 
    This response is not cacheable.  However, a cache MUST mark any
    stored response for the changed resource as not fresh.
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 49]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
 5.9.1.5.  2.05 Content
 
@@ -2793,16 +2633,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 5.9.2.4.  4.03 Forbidden
 
    This Response Code is like HTTP 403 "Forbidden".
-
-
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 50]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
 5.9.2.5.  4.04 Not Found
 
@@ -2852,14 +2682,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 
    This Response Code is like HTTP 500 "Internal Server Error".
 
-
-
-
-Shelby, et al.               Standards Track                   [Page 51]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
 5.9.3.2.  5.01 Not Implemented
 
    This Response Code is like HTTP 501 "Not Implemented".
@@ -2893,28 +2715,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
    Critical, UnSafe, and NoCacheKey, respectively.  Since NoCacheKey
    only has a meaning for options that are Safe-to-Forward (not marked
    Unsafe), the column is filled with a dash for UnSafe options.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                   [Page 52]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
    +-----+---+---+---+---+----------------+--------+--------+----------+
    | No. | C | U | N | R | Name           | Format | Length | Default  |
@@ -2964,13 +2764,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 
    o  each Uri-Path Option specifies one segment of the absolute path to
       the resource, and
-
-
-
-Shelby, et al.               Standards Track                   [Page 53]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
 
    o  each Uri-Query Option specifies one argument parameterizing the
       resource.
@@ -5728,50 +5521,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
               Security PAG, October 2012,
               <http://www.w3.org/2011/xmlsec-pag/pagreport.html>.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 103]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
 Appendix A.  Examples
 
    This section gives a number of short examples with message flows for
@@ -5870,20 +5619,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
            Figure 17: Confirmable Request; Piggybacked Response
 
 
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 105]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    In Figure 18, the Confirmable GET request is lost.  After ACK_TIMEOUT
    seconds, the client retransmits the request, resulting in a
    piggybacked response as in the previous example.
@@ -5907,37 +5642,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
       |      |
 
    Figure 18: Confirmable Request (Retransmitted); Piggybacked Response
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 106]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
 
 
    In Figure 19, the first Acknowledgement message from the server to
@@ -6098,16 +5802,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
        Figure 22: Non-confirmable Request; Non-confirmable Response
 
 
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 109]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    In Figure 23, the client sends a Non-confirmable GET request to a
    multicast address: all nodes in link-local scope.  There are 3
    servers on the link: A, B and C.  Servers A and B have a matching
@@ -6154,16 +5848,6 @@ Appendix B.  URI Examples
          Destination IP Address = [2001:db8::2:1]
          Destination UDP Port = 5683
 
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 110]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
       Output:
 
          coap://[2001:db8::2:1]/
@@ -6207,19 +5891,6 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
          (The line break has been inserted for readability; it is not
          part of the URI.)
 
-
-
-
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 111]
-
-RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
-
-
    o  Input:
 
          Destination IP Address = 198.51.100.1
@@ -6234,42 +5905,3 @@ RFC 7252       The Constrained Application Protocol (CoAP)     June 2014
       Output:
 
          coap://198.51.100.1:61616//%2F//?%2F%2F&?%26
-
-Authors' Addresses
-
-   Zach Shelby
-   ARM
-   150 Rose Orchard
-   San Jose, CA  95134
-   USA
-
-   Phone: +1-408-203-9434
-   EMail: zach.shelby@arm.com
-
-
-   Klaus Hartke
-   Universitaet Bremen TZI
-   Postfach 330440
-   Bremen  D-28359
-   Germany
-
-   Phone: +49-421-218-63905
-   EMail: hartke@tzi.org
-
-
-   Carsten Bormann
-   Universitaet Bremen TZI
-   Postfach 330440
-   Bremen  D-28359
-   Germany
-
-   Phone: +49-421-218-63921
-   EMail: cabo@tzi.org
-
-
-
-
-
-
-Shelby, et al.               Standards Track                  [Page 112]
-

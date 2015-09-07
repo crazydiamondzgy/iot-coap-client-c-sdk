@@ -169,6 +169,7 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 	mutex_unlock(&p_endpoint->m_send_mutex);
 	
 	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
+	coap_log_debug_packet((const char *)&p_pkt->hdr, p_pkt->len);
 
 	return 0;
 }
