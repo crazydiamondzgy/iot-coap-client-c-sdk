@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
+
 #include "coap_packet.h"
 
 int coap_pkt_is_valid(coap_pkt_t * p_pkt)
@@ -11,11 +12,12 @@ int coap_pkt_is_valid(coap_pkt_t * p_pkt)
 
 coap_pkt_t * coap_pkt_alloc(size_t len)
 {
-	coap_pkt_t * p_pkt = malloc(sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + len);
+	size_t size = sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + len;
+	coap_pkt_t * p_pkt = (coap_pkt_t *)malloc(size);
 	if (p_pkt) 
 	{
-		memset(p_pkt, 0, sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + len);
-		p_pkt->size = COAP_MAX_PKT_SIZE;
+		memset(p_pkt, 0, size);
+		p_pkt->size = size;
 	}
 
 	return p_pkt;

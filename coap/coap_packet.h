@@ -4,7 +4,7 @@
 #include "coap_type.h"
 #include "queue.h"
 
-#define COAP_MAX_PKT_SIZE                      1400
+#define COAP_MAX_PKT_SIZE                      1280
 
 #define COAP_MAKE_PKT_CODE(M, N)               ((M<<5) | N)
 
@@ -60,14 +60,18 @@
 #define COAP_PKT_IS_REQUEST(MSG)               (!COAP_PKT_IS_EMPTY(MSG) && ((MSG)->code < 32))
 #define COAP_PKT_IS_RESPONSE(MSG)              ((MSG)->code >= 64)
 
+#pragma pack(1)
+
 typedef struct {
 	uint8  token_len:4;
 	uint8  type:2;
 	uint8  version:2;
 	uint8  code;
 	uint16 message_id;
-	uint8  token_data[];
+	uint8  token_data[1];
 } coap_hdr_t;
+
+#pragma pack()
 
 typedef struct {
 	queue_hdr_t node;

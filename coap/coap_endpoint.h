@@ -7,9 +7,9 @@
 #include "coap_packet.h"
 #include "os_support.h"
 
-#define COAP_MAX_ENDPOINTS  32
+#define COAP_MAX_ENDPOINTS  16
 #define COAP_MAX_RETRANSMIT 4
-#define COAP_ACK_TIMEOUT    2
+#define COAP_ACK_TIMEOUT    2000
 
 typedef struct 
 {
@@ -31,7 +31,7 @@ typedef struct
 	int           m_endpoint_mgr_is_running;
 } coap_endpoint_mgr_t;
 
-coap_endpoint_t * coap_alloc_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr);
+coap_endpoint_t * coap_alloc_endpoint();
 coap_endpoint_t * coap_get_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i);
 int coap_find_unused_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr);
 int coap_clear_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr);

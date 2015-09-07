@@ -12,6 +12,7 @@
 #endif
 
 #include "coap_log.h"
+#include "coap_packet.h"
 #include "os_support.h"
 
 static char * __coap_log_level_string[COAP_LOG_LEVEL_MAX] =
@@ -216,6 +217,27 @@ void coap_log_debug_binary(char * buf, int buflen)
 		snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "%s%02X%s", tmp, 0xFF & (*buf++), (buflen > 0) ? " " : "\r\n");
 	}
 
+	coap_log_print(tmp, COAP_LOG_LEVEL_DEBUG);
+	
+	return;
+}
+
+void coap_log_debug_packet(buf, buflen)
+{
+	char tmp[COAP_LOG_MAX_BUFSIZE];
+	coap_hdr_t * p_hdr = (coap_hdr_t *)buf;
+	memset(tmp, 0, sizeof(tmp));
+
+	if (COAP_LOG_LEVEL_DEBUG < __coap_log_level)
+	{
+		return;
+	}
+
+	coap_log_print_header(COAP_LOG_LEVEL_DEBUG, __FILENAME__, __LINE__);
+
+	snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "ver=%d, type=%d, tkl=%d, msg=%X, id=%X\r\n", 
+		p_hdr->version, p_hdr->type, p_hdr->token_len, p_hdr->code, p_hdr->message_id);
+	
 	coap_log_print(tmp, COAP_LOG_LEVEL_DEBUG);
 	
 	return;

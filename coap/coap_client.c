@@ -1,4 +1,5 @@
 #include "os_support.h"
+#include "coap_log.h"
 #include "coap_util.h"
 #include "coap_client.h"
 #include "coap_endpoint.h"
@@ -59,7 +60,7 @@ int coap_connect(char * p_str_addr, int port)
 	p_host = gethostbyname(p_str_addr);
 	if (p_host && p_host->h_addr_list[0]) 
 	{
-		p_endpoint = coap_alloc_endpoint(&__coap_endpoint_mgr);
+		p_endpoint = coap_alloc_endpoint();
 		p_endpoint->m_servsock = socket(AF_INET, SOCK_DGRAM, 0);
 		p_endpoint->m_servaddr.sin_family = AF_INET;
 		p_endpoint->m_servaddr.sin_addr.s_addr = *(u_long *)p_host->h_addr_list[0];
@@ -107,19 +108,19 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 		return COAP_RET_INVALID_PARAMETERS;
 	}
 
-	if (0 == strncasecmp(p_method, "GET", 7))
+	if (0 == strncasecmp(p_method, "GET", 4))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
 		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0);
 	}
 
-	if (0 == strncasecmp(p_method, "PUT", 7))
+	if (0 == strncasecmp(p_method, "PUT", 4))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
 		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0);
 	}
 
-	if (0 == strncasecmp(p_method, "POST", 7))
+	if (0 == strncasecmp(p_method, "POST", 4))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
 		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, 0);
@@ -129,6 +130,12 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
 		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0);
+	}
+
+	if (NULL == p_pkt)
+	{
+		coap_log_error_string("## unsupported method!\r\n");
+		return COAP_RET_INVALID_PARAMETERS;
 	}
 
 	coap_pkt_add_token(p_pkt, NULL, 0);

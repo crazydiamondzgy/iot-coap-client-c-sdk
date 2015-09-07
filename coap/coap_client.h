@@ -9,6 +9,7 @@ extern "C" {
 #define COAP_RET_UNRESOLVED_HOST                 -2
 #define COAP_RET_SOCKET_INIT_FAILED              -3
 #define COAP_RET_NO_MORE_NODE                    -4
+#define COAP_RET_BUFFER_TOO_SMALL                -5
 
 /* Common API */
 

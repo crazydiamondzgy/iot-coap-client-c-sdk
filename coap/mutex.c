@@ -21,8 +21,6 @@ void mutex_uninit(mutex_t * p_mutex)
 	pthread_mutex_unlock(&p_mutex->m_mutex);
 	pthread_mutex_destroy(&p_mutex->m_mutex);
 #endif
-
-	free(p_mutex);
 }
 
 void mutex_lock(mutex_t * p_mutex)

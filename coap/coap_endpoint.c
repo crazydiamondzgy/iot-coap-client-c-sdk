@@ -12,15 +12,19 @@
 #include "coap_endpoint.h"
 #include "coap_client.h"
 
-coap_endpoint_t * coap_alloc_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr)
+coap_endpoint_t * coap_alloc_endpoint()
 {
 	coap_endpoint_t * p_endpoint = (coap_endpoint_t *)malloc(sizeof(coap_endpoint_t));
-	
-	queue_init(&p_endpoint->m_send_queue);
-	queue_init(&p_endpoint->m_recv_queue);
-	mutex_init(&p_endpoint->m_send_mutex);
-	mutex_init(&p_endpoint->m_recv_mutex);
-	
+	if (p_endpoint)
+	{
+		memset(p_endpoint, 0, sizeof(coap_endpoint_t));
+
+		queue_init(&p_endpoint->m_send_queue);
+		queue_init(&p_endpoint->m_recv_queue);
+		mutex_init(&p_endpoint->m_send_mutex);
+		mutex_init(&p_endpoint->m_recv_mutex);
+	}
+
 	return p_endpoint;
 }
 
@@ -41,7 +45,7 @@ int coap_free_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 		free(p_pkt);
 	}
 	
-	while (!queue_is_empty(&p_endpoint->m_recv_queue)) 
+	while (!queue_is_empty(&p_endpoint->m_recv_queue))
 	{
 		p_pkt = queue_entry(p_endpoint->m_recv_queue.next, coap_pkt_t, node);
 		queue_del(&p_pkt->node);
@@ -67,7 +71,7 @@ void coap_check_timeouts(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 	{
 		coap_pkt_t * p_pkt = queue_entry(p, coap_pkt_t, node);
 		next = p->next;
-		if (p_pkt->last_transmit_time + p_pkt->retransmit_interval > p_endpoint_mgr->m_endpoint_mgr_time_cache) 
+		if (p_pkt->last_transmit_time + p_pkt->retransmit_interval < p_endpoint_mgr->m_endpoint_mgr_time_cache) 
 		{
 			if (p_pkt->retransmit_count < COAP_MAX_RETRANSMIT)
 			{
@@ -92,7 +96,9 @@ void coap_dispatch(coap_endpoint_t * p_endpoint, char * buf, int len)
 {
 	coap_hdr_t * p_hdr = (coap_hdr_t *)buf;
 	assert(p_endpoint);
-	
+
+	coap_log_debug_packet(buf, len);
+
     switch (p_hdr->type)
 	{
     case COAP_PKT_TYPE_ACK:
@@ -118,7 +124,7 @@ void coap_dispatch(coap_endpoint_t * p_endpoint, char * buf, int len)
 		coap_pkt_t * p_pkt = coap_pkt_alloc(len);
 		p_pkt->len = len;
 		memcpy(&p_pkt->hdr, buf, len);
-		
+
 		mutex_lock(&p_endpoint->m_recv_mutex);
 		coap_recv_queue_push_node(p_endpoint, p_pkt);
 		mutex_unlock(&p_endpoint->m_recv_mutex);
@@ -190,6 +196,10 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 			for (i = 0; i < COAP_MAX_ENDPOINTS; i++)
 			{
 				coap_endpoint_t * p_endpoint = coap_get_endpoint(p_endpoint_mgr, i);
+				if (NULL == p_endpoint)
+				{
+					continue;
+				}
 
 				if (FD_ISSET(p_endpoint->m_servsock, &rfds))
 				{
@@ -200,7 +210,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 					if (len <= 0) 
 					{
 						int err = coap_get_error_code();
-						coap_log_error_string("Socket Error:%d!\r\n", err);
+						coap_log_error_string("recvfrom error:%d!\r\n", err);
 						continue;
 					}
 					
@@ -221,9 +231,10 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 
 int coap_clear_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 {
+	int i = 0;
 	assert(p_endpoint_mgr);
 
-	memset(p_endpoint_mgr->m_coap_endpoints, 0, sizeof(coap_endpoint_t)*COAP_MAX_ENDPOINTS);
+	memset(p_endpoint_mgr->m_coap_endpoints, 0, sizeof(coap_endpoint_t *)*COAP_MAX_ENDPOINTS);
 
 	return 0;
 }
@@ -254,7 +265,7 @@ int coap_find_unused_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr)
 
 	for (; i < COAP_MAX_ENDPOINTS; i++)
 	{
-		if (p_endpoint_mgr->m_coap_endpoints[i])
+		if (NULL == p_endpoint_mgr->m_coap_endpoints[i])
 		{
 			return i;
 		}
@@ -267,7 +278,7 @@ coap_endpoint_t * coap_get_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 {
 	assert(p_endpoint_mgr);
 
-	if (i < COAP_MAX_ENDPOINTS && i > 0)
+	if (i < COAP_MAX_ENDPOINTS && i >= 0)
 	{
 		return p_endpoint_mgr->m_coap_endpoints[i];
 	}
@@ -279,9 +290,8 @@ int coap_set_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i, coap_endpoint
 {
 	assert(p_endpoint_mgr);
 
-	if (i < COAP_MAX_ENDPOINTS && i > 0)
+	if (i < COAP_MAX_ENDPOINTS && i >= 0)
 	{
-		assert(p_endpoint_mgr->m_coap_endpoints[i] == NULL);
 		p_endpoint_mgr->m_coap_endpoints[i] = p_endpoint;
 	}
 
@@ -307,7 +317,7 @@ int coap_recv_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt)
 	
 	queue_init(&p_pkt->node);
 	queue_add_tail(&p_pkt->node, &p_endpoint->m_recv_queue);
-	p_endpoint->m_send_queue_pkt_num++;	
+	p_endpoint->m_recv_queue_pkt_num++;	
 	
 	return 0;
 }
@@ -339,6 +349,7 @@ int coap_send_queue_del_node(coap_endpoint_t * p_endpoint, uint16 message_id)
 int coap_recv_queue_pop_node(coap_endpoint_t * p_endpoint, char * buffer, size_t len)
 {
 	coap_pkt_t * p_pkt = NULL;
+	int ret = 0;
 
 	assert(p_endpoint);
 	assert(buffer);
@@ -349,17 +360,19 @@ int coap_recv_queue_pop_node(coap_endpoint_t * p_endpoint, char * buffer, size_t
 		return 0;
 	}
 	
-	p_pkt = queue_entry(&p_endpoint->m_recv_queue, coap_pkt_t, node);
+	p_pkt = queue_entry(p_endpoint->m_recv_queue.next, coap_pkt_t, node);
 	
 	if (p_pkt->len > len)
 	{
-		return -1;
+		coap_log_debug_string("output buffer is too small to store the packet!\r\n");
+		return COAP_RET_BUFFER_TOO_SMALL;
 	}
 	
 	memcpy(buffer, &p_pkt->hdr, p_pkt->len);
+	ret = p_pkt->len;
 	queue_del(&p_pkt->node);
 	free(p_pkt);
 	p_endpoint->m_recv_queue_pkt_num--;
 	
-	return len;
+	return ret;
 }

@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ucoap", "ucoap.vcproj", "{13F8297D-4E28-4DC3-8BF2-0DE911EB610B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ucoap_cli", "ucoap_cli.vcproj", "{6DB6FEDF-F758-4F78-871B-9EBC8C169682}"
+	ProjectSection(ProjectDependencies) = postProject
+		{13F8297D-4E28-4DC3-8BF2-0DE911EB610B} = {13F8297D-4E28-4DC3-8BF2-0DE911EB610B}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{13F8297D-4E28-4DC3-8BF2-0DE911EB610B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13F8297D-4E28-4DC3-8BF2-0DE911EB610B}.Debug|Win32.Build.0 = Debug|Win32
+		{13F8297D-4E28-4DC3-8BF2-0DE911EB610B}.Release|Win32.ActiveCfg = Release|Win32
+		{13F8297D-4E28-4DC3-8BF2-0DE911EB610B}.Release|Win32.Build.0 = Release|Win32
+		{6DB6FEDF-F758-4F78-871B-9EBC8C169682}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6DB6FEDF-F758-4F78-871B-9EBC8C169682}.Debug|Win32.Build.0 = Debug|Win32
+		{6DB6FEDF-F758-4F78-871B-9EBC8C169682}.Release|Win32.ActiveCfg = Release|Win32
+		{6DB6FEDF-F758-4F78-871B-9EBC8C169682}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
