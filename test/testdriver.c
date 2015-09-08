@@ -21,28 +21,29 @@
 #pragma comment(lib, "ws2_32.lib")
 
 int
-main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM) {
+main(int argc UNUSED_PARAM, char **argv UNUSED_PARAM) 
+{	
+	CU_ErrorCode result;
+	CU_BasicRunMode run_mode = CU_BRM_VERBOSE;
 	
-  CU_ErrorCode result;
-  CU_BasicRunMode run_mode = CU_BRM_VERBOSE;
-
-  if (CU_initialize_registry() != CUE_SUCCESS) {
-    fprintf(stderr, "E: test framework initialization failed\n");
-    return -2;
-  }
-
-//  t_init_uri_tests();
-//  t_init_option_tests();
-  t_init_pdu_tests();
-//  t_init_error_response_tests();
-//  t_init_sendqueue_tests();
-//  t_init_wellknown_tests();
-
-  CU_basic_set_mode(run_mode);
-  result = CU_basic_run_tests();
-
-  CU_cleanup_registry();
-
-  getchar();
-  return result;
+	if (CU_initialize_registry() != CUE_SUCCESS) 
+	{
+		fprintf(stderr, "E: test framework initialization failed\n");
+		return -2;
+	}
+	
+	//  t_init_uri_tests();
+	//  t_init_option_tests();
+	t_init_pdu_tests();
+	//  t_init_error_response_tests();
+	//  t_init_sendqueue_tests();
+	//  t_init_wellknown_tests();
+	
+	CU_basic_set_mode(run_mode);
+	result = CU_basic_run_tests();
+	
+	CU_cleanup_registry();
+	
+	getchar();
+	return result;
 }

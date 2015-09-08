@@ -32,15 +32,13 @@ static void t_parse_pkt1(void)
 
 	free(p_pkt);
 }
-#if 0
-static void
-t_parse_pkt2(void) {
+
+static void t_parse_pkt2(void) 
+{
 	uint8 teststr[] = {  0x55, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
-	int result;
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result > 0);
-	
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
 	CU_ASSERT(p_pkt->hdr.type == COAP_PKT_TYPE_NON);
@@ -50,6 +48,8 @@ t_parse_pkt2(void) {
 	CU_ASSERT(memcmp(p_pkt->hdr.token, teststr + 4, 5) == 0);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 }
+
+#if 0
 
 static void
 t_parse_pkt3(void) {
@@ -643,8 +643,8 @@ CU_pSuite t_init_pdu_tests(void) {
 	}
 	
 	PKT_TEST(suite[0], t_parse_pkt1);
-/*	PKT_TEST(suite[0], t_parse_pkt2);
-	PKT_TEST(suite[0], t_parse_pkt3);
+	PKT_TEST(suite[0], t_parse_pkt2);
+/*	PKT_TEST(suite[0], t_parse_pkt3);
 	PKT_TEST(suite[0], t_parse_pkt4);
 	PKT_TEST(suite[0], t_parse_pkt5);
 	PKT_TEST(suite[0], t_parse_pkt6);
