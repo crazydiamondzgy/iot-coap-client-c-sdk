@@ -86,12 +86,6 @@ int coap_close(int s)
 		return ret;
 	}
 
-	ret = coap_set_endpoint(&__coap_endpoint_mgr, s, NULL);
-	if (ret < 0)
-	{
-		return ret;
-	}
-
 	return 0;
 }
 
@@ -111,25 +105,25 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 	if (0 == strncasecmp(p_method, "GET", 4))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
-		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, coap_get_message_id(p_endpoint));
 	}
 
 	if (0 == strncasecmp(p_method, "PUT", 4))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
-		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, 0);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_PUT, coap_get_message_id(p_endpoint));
 	}
 
 	if (0 == strncasecmp(p_method, "POST", 4))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
-		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, 0);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_POST, coap_get_message_id(p_endpoint));
 	}
 
 	if (0 == strncasecmp(p_method, "DELETE", 7))
 	{
 		p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
-		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, 0);
+		coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_DELETE, coap_get_message_id(p_endpoint));
 	}
 
 	if (NULL == p_pkt)
@@ -168,8 +162,8 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 	coap_send_queue_push_node(p_endpoint, p_pkt);
 	mutex_unlock(&p_endpoint->m_send_mutex);
 	
-	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
-	coap_log_debug_packet((const char *)&p_pkt->hdr, p_pkt->len);
+	coap_log_debug_packet((char *)p_pkt);
+	sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->packet_length, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
 
 	return 0;
 }

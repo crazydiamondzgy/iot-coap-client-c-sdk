@@ -30,6 +30,7 @@ coap_endpoint_t * coap_alloc_endpoint()
 
 int coap_free_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 {
+	int ret = 0;
 	coap_pkt_t * p_pkt = NULL;
 	
 	coap_endpoint_t * p_endpoint = coap_get_endpoint(p_endpoint_mgr, i);
@@ -55,6 +56,14 @@ int coap_free_endpoint(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 	mutex_uninit(&p_endpoint->m_send_mutex);
 	mutex_uninit(&p_endpoint->m_recv_mutex);
 
+	free(p_endpoint);
+
+	ret = coap_set_endpoint(p_endpoint_mgr, i, NULL);
+	if (ret < 0)
+	{
+		return ret;
+	}
+
 	return 0;
 }
 
@@ -75,7 +84,9 @@ void coap_check_timeouts(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 		{
 			if (p_pkt->retransmit_count < COAP_MAX_RETRANSMIT)
 			{
-				sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->len, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
+				coap_log_debug_packet((char *)p_pkt);
+				sendto(p_endpoint->m_servsock, (const char *)&p_pkt->hdr, p_pkt->packet_length, 0, (struct sockaddr *)&p_endpoint->m_servaddr, sizeof(p_endpoint->m_servaddr));
+				
 				p_pkt->last_transmit_time = coap_get_milliseconds();
 				p_pkt->retransmit_interval <<= 1;
 				p_pkt->retransmit_count++;
@@ -92,22 +103,22 @@ void coap_check_timeouts(coap_endpoint_mgr_t * p_endpoint_mgr, int i)
 	return;
 }
 
-void coap_dispatch(coap_endpoint_t * p_endpoint, char * buf, int len) 
+void coap_dispatch(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt) 
 {
-	coap_hdr_t * p_hdr = (coap_hdr_t *)buf;
 	assert(p_endpoint);
+	assert(p_pkt);
 
-	coap_log_debug_packet(buf, len);
+	coap_log_debug_packet((char *)p_pkt);
 
-    switch (p_hdr->type)
+    switch (p_pkt->hdr.type)
 	{
     case COAP_PKT_TYPE_ACK:
-		coap_send_queue_del_node(p_endpoint, p_hdr->message_id);
-		if (p_hdr->code == 0) goto cleanup;
+		coap_send_queue_del_node(p_endpoint, p_pkt->hdr.message_id);
+		if (p_pkt->hdr.code == 0) goto cleanup;
 		break;
 		
     case COAP_PKT_TYPE_RST:
-		coap_send_queue_del_node(p_endpoint, p_hdr->message_id);
+		coap_send_queue_del_node(p_endpoint, p_pkt->hdr.message_id);
 		goto cleanup;
 		
     case COAP_PKT_TYPE_NON:
@@ -119,12 +130,8 @@ void coap_dispatch(coap_endpoint_t * p_endpoint, char * buf, int len)
 		break;
     }
 	
-	if (!COAP_PKT_IS_EMPTY(p_hdr))
+	if (!COAP_PKT_IS_EMPTY(&p_pkt->hdr))
 	{
-		coap_pkt_t * p_pkt = coap_pkt_alloc(len);
-		p_pkt->len = len;
-		memcpy(&p_pkt->hdr, buf, len);
-
 		mutex_lock(&p_endpoint->m_recv_mutex);
 		coap_recv_queue_push_node(p_endpoint, p_pkt);
 		mutex_unlock(&p_endpoint->m_recv_mutex);
@@ -143,7 +150,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 #endif
 {
 	coap_endpoint_mgr_t * p_endpoint_mgr = (coap_endpoint_mgr_t *)p_void;
-
+	coap_pkt_t * p_pkt = NULL;
 	char buf[COAP_MAX_PKT_SIZE];
 	struct sockaddr_in sockaddr;
 	int socklen = sizeof(sockaddr);
@@ -214,7 +221,14 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 						continue;
 					}
 					
-					coap_dispatch(p_endpoint, buf, len);
+					p_pkt = coap_pkt_parse(buf, len);
+					if (NULL == p_pkt) 
+					{
+						coap_log_error_string("received a invalid packet!\r\n");
+						continue;
+					}
+
+					coap_dispatch(p_endpoint, p_pkt);
 				}
 			}
 		}
@@ -362,17 +376,24 @@ int coap_recv_queue_pop_node(coap_endpoint_t * p_endpoint, char * buffer, size_t
 	
 	p_pkt = queue_entry(p_endpoint->m_recv_queue.next, coap_pkt_t, node);
 	
-	if (p_pkt->len > len)
+	if (p_pkt->packet_length > len)
 	{
 		coap_log_debug_string("output buffer is too small to store the packet!\r\n");
 		return COAP_RET_BUFFER_TOO_SMALL;
 	}
 	
-	memcpy(buffer, &p_pkt->hdr, p_pkt->len);
-	ret = p_pkt->len;
+	memcpy(buffer, &p_pkt->hdr, p_pkt->packet_length);
+	ret = p_pkt->packet_length;
 	queue_del(&p_pkt->node);
 	free(p_pkt);
 	p_endpoint->m_recv_queue_pkt_num--;
 	
 	return ret;
+}
+
+uint16 coap_get_message_id(coap_endpoint_t * p_endpoint)
+{
+  p_endpoint->m_message_id++;
+
+  return htons(p_endpoint->m_message_id);
 }

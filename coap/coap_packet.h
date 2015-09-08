@@ -63,12 +63,12 @@
 #pragma pack(1)
 
 typedef struct {
-	uint8  token_len:4;
+	uint8  token_length:4;
 	uint8  type:2;
 	uint8  version:2;
 	uint8  code;
 	uint16 message_id;
-	uint8  token_data[1];
+	uint8  token[1];
 } coap_hdr_t;
 
 #pragma pack()
@@ -76,7 +76,11 @@ typedef struct {
 typedef struct {
 	queue_hdr_t node;
 	size_t      size;
-	size_t      len;
+	uint8 *     p_option;
+	uint8 *     p_data;
+	size_t      packet_length;
+	size_t      option_length;
+	size_t      data_length;
 	uint16      max_delta;
 	uint32      last_transmit_time;
 	uint32      retransmit_count;
@@ -85,6 +89,7 @@ typedef struct {
 } coap_pkt_t;
 
 coap_pkt_t * coap_pkt_alloc(size_t len);
+coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len);
 int coap_pkt_free(coap_pkt_t * p_pkt);
 int coap_pkt_add_header(coap_pkt_t * p_pkt, uint8 type, uint8 code, uint16 message_id);
 int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len);

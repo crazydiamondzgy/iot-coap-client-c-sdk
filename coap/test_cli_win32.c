@@ -1,21 +1,22 @@
 #include <winsock2.h>
 #include <stdio.h>
+
+#define _CRTDBG_MAP_ALLOC 
+#include <stdlib.h>
 #include <crtdbg.h>
 
 #include "coap_client.h"
 
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new  DEBUG_NEW
-
 int main(int argc, char **argv)
 {
 	char buf[2048] = {0};
+	char * data = "hi linuxkernel!";
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	{
 		int ret = 0;
 		int s = coap_connect("115.28.56.102", 5683);
-		coap_send(s, "PUT", "/topic?root:root", "hi linuxkernel!", 16);
+		coap_send(s, "PUT", "/topic?root:root", data, strlen(data));
 
 		while (0 == ret)
 		{

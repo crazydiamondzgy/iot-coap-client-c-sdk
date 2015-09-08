@@ -26,7 +26,7 @@ void coap_log_debug_string(char * format, ...);
 void coap_log_info_string(char * format, ...);
 void coap_log_warn_string(char * format, ...);
 void coap_log_error_string(char * format, ...);
-void coap_log_debug_binary(buf, buflen);
-void coap_log_debug_packet(buf, buflen);
+void coap_log_debug_binary(char * buf, int buflen);
+void coap_log_debug_packet(char * buf);
 
 #endif

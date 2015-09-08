@@ -21,6 +21,7 @@ typedef struct
 	uint32             m_recv_queue_pkt_num;
 	mutex_t            m_send_mutex;
 	mutex_t            m_recv_mutex;
+	uint16             m_message_id;
 } coap_endpoint_t;
 
 typedef struct 
@@ -42,5 +43,6 @@ int coap_send_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt);
 int coap_send_queue_del_node(coap_endpoint_t * p_endpoint, uint16 message_id);
 int coap_recv_queue_push_node(coap_endpoint_t * p_endpoint, coap_pkt_t * p_pkt);
 int coap_recv_queue_pop_node(coap_endpoint_t * p_endpoint, char * buffer, size_t len);
+uint16 coap_get_message_id(coap_endpoint_t * p_endpoint);
 
 #endif

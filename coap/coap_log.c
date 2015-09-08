@@ -87,8 +87,6 @@ void coap_log_print_header(int level, const char * file_name, int line_number)
 		file_name, line_number);
 #endif
 
-	memset(tmp, 0, COAP_LOG_MAX_BUFSIZE);
-
 	coap_log_print(tmp, level);
 }
 
@@ -222,14 +220,15 @@ void coap_log_debug_binary(char * buf, int buflen)
 	return;
 }
 
-void coap_log_debug_packet(buf, buflen)
+void coap_log_debug_packet(char * buf)
 {
+	uint8 i = 0;
 	uint8 code_class = 0;
 	uint8 code_detail = 0;
 	uint16 message_id = 0;
 	char * type;
 	char tmp[COAP_LOG_MAX_BUFSIZE];
-	coap_hdr_t * p_hdr = (coap_hdr_t *)buf;
+	coap_pkt_t * p_pkt = (coap_pkt_t *)buf;
 	memset(tmp, 0, sizeof(tmp));
 
 	if (COAP_LOG_LEVEL_DEBUG < __coap_log_level)
@@ -237,7 +236,7 @@ void coap_log_debug_packet(buf, buflen)
 		return;
 	}
 
-	switch (p_hdr->type)
+	switch (p_pkt->hdr.type)
 	{
 	case 0: type = "CON"; break;
 	case 1: type = "NON"; break;
@@ -246,14 +245,26 @@ void coap_log_debug_packet(buf, buflen)
 	default: return;
 	}
 
-	code_class = p_hdr->code >> 5;
-	code_detail = p_hdr->code & 0x1F;
-	message_id = (p_hdr->message_id >> 8 ) | ((p_hdr->message_id & 0xFF) << 8);
+	code_class = p_pkt->hdr.code >> 5;
+	code_detail = p_pkt->hdr.code & 0x1F;
+	message_id = ntohs(p_pkt->hdr.message_id);
 	coap_log_print_header(COAP_LOG_LEVEL_DEBUG, __FILENAME__, __LINE__);
 
-	snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "ver=%d, type=%s, tkl=%d, code=%X.%02X, id=%04X\r\n", 
-		p_hdr->version, type, p_hdr->token_len, code_class, code_detail, message_id);
+	snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "ver=%d, type=%s, tkl=%d, code=%X.%02X, id=%04X {", 
+		p_pkt->hdr.version, type, p_pkt->hdr.token_length, code_class, code_detail, message_id);
 	
+	for (i = 0; i < p_pkt->hdr.token_length; i++) 
+	{
+		snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "%s%02x", tmp, p_pkt->hdr.token[i]);
+	}
+  
+	snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "%s}", tmp);
+
+	if (p_pkt->p_data)
+	{
+		snprintf(tmp, COAP_LOG_MAX_BUFSIZE, "%s::%s\r\n", tmp, p_pkt->p_data);
+	}
+
 	coap_log_print(tmp, COAP_LOG_LEVEL_DEBUG);
 	
 	return;
