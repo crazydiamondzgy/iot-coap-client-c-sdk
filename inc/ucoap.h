@@ -1,5 +1,5 @@
-#ifndef __COAP_CLIENT_H__
-#define __COAP_CLIENT_H__
+#ifndef __UCOAP_H__
+#define __UCOAP_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,7 +17,6 @@ int coap_connect(char * p_str_addr, int port);
 int coap_close(int s);
 int coap_setsockopt(int s, int level, int optname, void * optval, int optlen);
 int coap_getsockopt(int s, int level, int optname, void * optval);
-
 
 /* Synchronous API */
 

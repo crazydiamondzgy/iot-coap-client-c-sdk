@@ -159,7 +159,7 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len)
 		return NULL;
 	}
 
-	if (len < sizeof(coap_hdr_t))
+	if (len < sizeof(coap_hdr_t) - 1)
 	{
 		coap_log_error_string("input buffer is too small to be a coap packet\r\n");
 		return NULL;
@@ -178,7 +178,7 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len)
 		}
 	}
 
-	if (len < sizeof(coap_hdr_t) + p_pkt->hdr.token_length || p_pkt->hdr.token_length > 8)
+	if (len < sizeof(coap_hdr_t) - 1 + p_pkt->hdr.token_length || p_pkt->hdr.token_length > 8)
 	{
 		coap_log_error_string("invalid token length\r\n");
 		goto discard;
