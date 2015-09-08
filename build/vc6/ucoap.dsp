@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "ucoap___Win32_Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "DEBUG" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "..\inc" /I "..\..\inc" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "DEBUG" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x804 /d "_DEBUG"
 # ADD RSC /l 0x804 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -82,71 +82,67 @@ LIB32=link.exe -lib
 # Name "ucoap - Win32 Debug"
 # Begin Source File
 
-SOURCE=..\..\coap\coap_client.c
+SOURCE=..\..\src\coap_endpoint.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_client.h
+SOURCE=..\..\src\coap_endpoint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_endpoint.c
+SOURCE=..\..\src\coap_log.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_endpoint.h
+SOURCE=..\..\src\coap_log.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_log.c
+SOURCE=..\..\src\coap_option.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_log.h
+SOURCE=..\..\src\coap_option.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_option.c
+SOURCE=..\..\src\coap_packet.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_option.h
+SOURCE=..\..\src\coap_packet.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_packet.c
+SOURCE=..\..\src\coap_type.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_packet.h
+SOURCE=..\..\src\coap_util.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_type.h
+SOURCE=..\..\src\coap_util.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_util.c
+SOURCE=..\..\src\mutex.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\coap_util.h
+SOURCE=..\..\src\mutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\mutex.c
+SOURCE=..\..\src\os_support.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\mutex.h
+SOURCE=..\..\src\queue.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\coap\os_support.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\coap\queue.h
+SOURCE=..\..\src\ucoap.c
 # End Source File
 # End Target
 # End Project

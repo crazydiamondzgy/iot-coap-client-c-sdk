@@ -1,7 +1,7 @@
+#include "ucoap.h"
 #include "os_support.h"
 #include "coap_log.h"
 #include "coap_util.h"
-#include "coap_client.h"
 #include "coap_endpoint.h"
 #include "coap_packet.h"
 

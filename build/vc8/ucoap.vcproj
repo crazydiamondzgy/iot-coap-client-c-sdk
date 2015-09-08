@@ -42,6 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\inc,..\..\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -170,183 +171,67 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\coap\coap_client.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\coap_client.h"
+			RelativePath="..\..\src\coap_endpoint.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\coap_endpoint.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\coap_endpoint.h"
+			RelativePath="..\..\src\coap_endpoint.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\coap_log.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\coap_log.h"
+			RelativePath="..\..\src\coap_log.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\coap_option.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\coap_option.h"
+			RelativePath="..\..\src\coap_log.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\coap_packet.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\coap_packet.h"
+			RelativePath="..\..\src\coap_option.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\coap_type.h"
+			RelativePath="..\..\src\coap_option.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\coap_util.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\coap_util.h"
+			RelativePath="..\..\src\coap_packet.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\mutex.c"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\coap\mutex.h"
+			RelativePath="..\..\src\coap_packet.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\os_support.h"
+			RelativePath="..\..\src\coap_type.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\coap\queue.h"
+			RelativePath="..\..\src\coap_util.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\coap_util.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\mutex.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\mutex.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\os_support.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\queue.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\ucoap.c"
 			>
 		</File>
 	</Files>

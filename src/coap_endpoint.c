@@ -4,13 +4,13 @@
 
 #include <assert.h>
 
+#include "ucoap.h"
 #include "queue.h"
 #include "mutex.h"
 #include "coap_log.h"
 #include "coap_util.h"
 #include "coap_packet.h"
 #include "coap_endpoint.h"
-#include "coap_client.h"
 
 coap_endpoint_t * coap_alloc_endpoint()
 {

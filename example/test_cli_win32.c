@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-#include "coap_client.h"
+#include "ucoap.h"
 
 int main(int argc, char **argv)
 {
