@@ -144,5 +144,9 @@ SOURCE=..\..\src\queue.h
 
 SOURCE=..\..\src\ucoap.c
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\inc\ucoap.h
+# End Source File
 # End Target
 # End Project

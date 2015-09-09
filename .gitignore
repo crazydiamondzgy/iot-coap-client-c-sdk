@@ -7,4 +7,5 @@
 *.user
 build/vc6/*Debug/
 build/vc8/*Debug/
-
+build/android/libs/
+build/android/obj/

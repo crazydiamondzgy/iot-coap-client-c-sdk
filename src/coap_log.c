@@ -39,16 +39,16 @@ void coap_log_print(char * tmp, int level)
 	int android_log_level = ANDROID_LOG_UNKNOWN;
 	switch (level)
 	{
-	case LEVEL_DEBUG:
+	case COAP_LOG_LEVEL_DEBUG:
 		android_log_level = ANDROID_LOG_DEBUG;
 		break;
-	case LEVEL_INFO:
+	case COAP_LOG_LEVEL_INFO:
 		android_log_level = ANDROID_LOG_INFO;
 		break;
-	case LEVEL_WARN:
+	case COAP_LOG_LEVEL_WARN:
 		android_log_level = ANDROID_LOG_WARN;
 		break;
-	case LEVEL_ERROR:
+	case COAP_LOG_LEVEL_ERROR:
 		android_log_level = ANDROID_LOG_ERROR;
 		break;
 	default:

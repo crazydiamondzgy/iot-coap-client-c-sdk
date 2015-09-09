@@ -1,4 +1,5 @@
 #include "coap_util.h"
+#include "coap_type.h"
 #include "os_support.h"
 
 #ifdef _WIN32
@@ -82,13 +83,13 @@ static uint64 GetMicroseconds()
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#if defined(__APPLE__)
-#include <mach/mach_time.h>
-
 int coap_get_error_code()
 {
 	return errno;
 }
+
+#if defined(__APPLE__)
+#include <mach/mach_time.h>
 
 static uint64 GetMicroseconds()
 {
@@ -133,13 +134,13 @@ static uint64_t GetMicroseconds()
 	if (have_posix_clocks) {
 		struct timespec ts;
 		rc = clock_gettime(CLOCK_MONOTONIC, &ts);
-		return uint64(ts.tv_sec) * 1000000 + ts.tv_nsec / 1000;
+		return (uint64)(ts.tv_sec) * 1000000 + ts.tv_nsec / 1000;
 	}
 #endif
 	{
 		struct timeval tv;
 		rc = gettimeofday(&tv, NULL);
-		return uint64(tv.tv_sec) * 1000000 + tv.tv_usec;
+		return (uint64)(tv.tv_sec) * 1000000 + tv.tv_usec;
 	}
 }
 #endif //!__APPLE__

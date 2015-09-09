@@ -1,7 +1,6 @@
 #ifndef __COAP_TYPES_H__
 #define __COAP_TYPES_H__
 
-// standard types
 typedef unsigned char byte;
 typedef unsigned char uint8;
 typedef signed char int8;
@@ -24,19 +23,10 @@ typedef unsigned long long uint64;
 typedef long long int64;
 #endif
 
-/* compile-time assert */
-#ifndef CASSERT
-#define CASSERT( exp, name ) typedef int is_not_##name [ (exp ) ? 1 : -1 ];
-#endif
-
-CASSERT(8 == sizeof(uint64), sizeof_uint64_is_8)
-CASSERT(8 == sizeof(int64), sizeof_int64_is_8)
-
 #ifndef INT64_MAX
 #define INT64_MAX 0x7fffffffffffffffLL
 #endif
 
-// always ANSI
 typedef const char * cstr;
 typedef char * str;
 
@@ -46,4 +36,4 @@ typedef uint8 bool;
 #define false 0
 #endif
 
-#endif //__UTYPES_H__
+#endif

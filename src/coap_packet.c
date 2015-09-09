@@ -7,11 +7,6 @@
 #include "coap_packet.h"
 #include "coap_log.h"
 
-int coap_pkt_is_valid(coap_pkt_t * p_pkt)
-{
-	return 1;
-}
-
 coap_pkt_t * coap_pkt_alloc(size_t len)
 {
 	size_t size = sizeof(coap_pkt_t) - sizeof(coap_hdr_t) + len;

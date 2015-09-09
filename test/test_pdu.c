@@ -49,17 +49,15 @@ static void t_parse_pkt2(void)
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 }
 
-#if 0
-
-static void
-t_parse_pkt3(void) {
+static void t_parse_pkt3(void) 
+{
 	uint8 teststr[] = {  0x53, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
-	int result;
-	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result == 0);
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
+
+#if 0
 static void
 t_parse_pkt4(void) {
 	/* illegal token length */
@@ -644,8 +642,8 @@ CU_pSuite t_init_pdu_tests(void) {
 	
 	PKT_TEST(suite[0], t_parse_pkt1);
 	PKT_TEST(suite[0], t_parse_pkt2);
-/*	PKT_TEST(suite[0], t_parse_pkt3);
-	PKT_TEST(suite[0], t_parse_pkt4);
+	PKT_TEST(suite[0], t_parse_pkt3);
+/*	PKT_TEST(suite[0], t_parse_pkt4);
 	PKT_TEST(suite[0], t_parse_pkt5);
 	PKT_TEST(suite[0], t_parse_pkt6);
 	PKT_TEST(suite[0], t_parse_pkt7);
