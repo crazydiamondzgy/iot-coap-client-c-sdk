@@ -110,27 +110,18 @@ static void test_pkt7_with_options_and_payload(void)
 	CU_ASSERT(memcmp(p_pkt->p_data, teststr + 13, 7) == 0);
 }
 
-static void t_parse_pkt8(void) {
-	/* p_pkt without options but with payload */
-	uint8 teststr[] = {  0x50, 0x73, 0x12, 0x34,
-		      0xff, 'p', 'a', 'y', 'l', 'o', 'a',
-			  'd'
-	};
-	int result;
-	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result > 0);
-	
+static void test_pkt8_without_options_with_payload(void) 
+{
+	uint8 teststr[] = {  0x50, 0x73, 0x12, 0x34, 0xff, 'p', 'a', 'y', 'l', 'o', 'a', 'd'};
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
 	CU_ASSERT(p_pkt->hdr.type == COAP_PKT_TYPE_NON);
 	CU_ASSERT(p_pkt->hdr.token_length == 0);
 	CU_ASSERT(p_pkt->hdr.code == 0x73);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
-	
-	/* FIXME: check options */
-	
-	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 5);
+	CU_ASSERT(p_pkt->p_data == (unsigned char *)&p_pkt->hdr + 5);
 	CU_ASSERT(memcmp(p_pkt->p_data, teststr + 5, 7) == 0);
 }
 
@@ -164,7 +155,7 @@ t_parse_pkt11(void) {
 	int result;
 	
 	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
@@ -181,7 +172,7 @@ t_parse_pkt12(void) {
 	int result;
 	
 	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
@@ -395,7 +386,7 @@ t_encode_pkt7(void) {
 	
 	result = coap_add_data(p_pkt, 0, NULL);
 	
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 4);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
@@ -418,11 +409,11 @@ t_encode_pkt8(void) {
 	
 	result = coap_add_token(p_pkt, 2, (unsigned char *)"\x00\x01");
 	
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	
 	result = coap_add_data(p_pkt, 1, (unsigned char *)"\0");
 	
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 8);
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 7);
 	
@@ -473,7 +464,7 @@ t_encode_pkt9(void) {
 	
 	result = coap_add_data(p_pkt, 4, (unsigned char *)"data");
 	
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 39);
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 35);
 	
@@ -533,7 +524,7 @@ t_encode_pkt10(void) {
 	
 	result = coap_add_token(p_pkt, 2, (unsigned char *)"\0\0");
 	
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	result = coap_add_option(p_pkt, COAP_OPTION_LOCATION_PATH, 255,
 		(unsigned char *)"coap://example.com/12345/%3Fxyz/3048234234/23402348234/239084234-23/%AB%30%af/+123/hfksdh/23480-234-98235/1204/243546345345243/0198sdn3-a-3///aff0934/97u2141/0002/3932423532/56234023/----/=1234=/098141-9564643/21970-----/82364923472wererewr0-921-39123-34/");
 	
@@ -560,7 +551,7 @@ t_encode_pkt10(void) {
 	
 	result = coap_add_data(p_pkt, 4, (unsigned char *)"data");
 	
-	CU_ASSERT(result > 0);
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 286);
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 282);
 	
@@ -616,8 +607,8 @@ CU_pSuite t_init_pdu_tests(void) {
 	PKT_TEST(suite[0], test_pkt5_with_options);
 	PKT_TEST(suite[0], test_pkt6_option_length_exceed);
 	PKT_TEST(suite[0], test_pkt7_with_options_and_payload);
-/*	PKT_TEST(suite[0], t_parse_pkt8);
-	PKT_TEST(suite[0], t_parse_pkt9);
+	PKT_TEST(suite[0], test_pkt8_without_options_with_payload);
+/*	PKT_TEST(suite[0], t_parse_pkt9);
 	PKT_TEST(suite[0], t_parse_pkt10);
 	PKT_TEST(suite[0], t_parse_pkt11);
 	PKT_TEST(suite[0], t_parse_pkt12);
