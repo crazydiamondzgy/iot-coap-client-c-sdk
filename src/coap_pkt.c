@@ -167,7 +167,7 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len)
 
 	if (0 == p_pkt->hdr.code) 
 	{
-		if (len != sizeof(coap_hdr_t) || p_pkt->hdr.token_length)
+		if (len != sizeof(coap_hdr_t) - 1 || p_pkt->hdr.token_length)
 		{
 			coap_log_error_string("empty message is not empty\r\n");
 			goto discard;
