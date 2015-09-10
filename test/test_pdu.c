@@ -16,6 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define PKT_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt parser test (%s)\n",	CU_get_error_msg());}
+#define pkt_ENCODER_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt encoder test (%s)\n", CU_get_error_msg());}
+
 static void t_parse_pkt1(void)
 {
 	uint8 teststr[] = {  0x40, 0x01, 0x93, 0x34 };
@@ -67,18 +70,12 @@ static void t_parse_pkt4(void)
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-#if 0
-static void
-t_parse_pkt5(void) {
-	/* p_pkt with options */
-	uint8 teststr[] = {  0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e',
-		      'n',  0x00, 0xc1, 0x00
-	};
-	int result;
+static void t_parse_pkt5(void) 
+{
+	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00};
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result > 0);
-	
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
 	CU_ASSERT(p_pkt->hdr.type == COAP_PKT_TYPE_NON);
@@ -87,10 +84,9 @@ t_parse_pkt5(void) {
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 	CU_ASSERT(memcmp(p_pkt->hdr.token, teststr + 4, 5) == 0);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
-	
-	/* FIXME: check options */
 }
 
+#if 0
 static void
 t_parse_pkt6(void) {
 	/* p_pkt with options that exceed the p_pkt */
@@ -622,24 +618,17 @@ CU_pSuite t_init_pdu_tests(void) {
 	
 	suite[0] = CU_add_suite("p_pkt parser", t_pkt_tests_create, t_pkt_tests_remove);
 	if (!suite[0]) {			/* signal error */
-		fprintf(stderr, "W: cannot add p_pkt parser test suite (%s)\n",
-			CU_get_error_msg());
+		fprintf(stderr, "W: cannot add p_pkt parser test suite (%s)\n", CU_get_error_msg());
 		
 		return NULL;
-	}
-	
-#define PKT_TEST(s,t)						      \
-	if (!CU_ADD_TEST(s,t)) {					      \
-    fprintf(stderr, "W: cannot add p_pkt parser test (%s)\n",	      \
-	CU_get_error_msg());				      \
 	}
 	
 	PKT_TEST(suite[0], t_parse_pkt1);
 	PKT_TEST(suite[0], t_parse_pkt2);
 	PKT_TEST(suite[0], t_parse_pkt3);
 	PKT_TEST(suite[0], t_parse_pkt4);
-/*	PKT_TEST(suite[0], t_parse_pkt5);
-	PKT_TEST(suite[0], t_parse_pkt6);
+	PKT_TEST(suite[0], t_parse_pkt5);
+/*	PKT_TEST(suite[0], t_parse_pkt6);
 	PKT_TEST(suite[0], t_parse_pkt7);
 	PKT_TEST(suite[0], t_parse_pkt8);
 	PKT_TEST(suite[0], t_parse_pkt9);
@@ -651,11 +640,7 @@ CU_pSuite t_init_pdu_tests(void) {
 */	
 	suite[1] = CU_add_suite("p_pkt encoder", t_pkt_tests_create, t_pkt_tests_remove);
 	if (suite[1]) {
-#define pkt_ENCODER_TEST(s,t)						      \
-	if (!CU_ADD_TEST(s,t)) {					      \
-    fprintf(stderr, "W: cannot add p_pkt encoder test (%s)\n",	      \
-	CU_get_error_msg());				      \
-	}
+
 /*		pkt_ENCODER_TEST(suite[1], t_encode_pkt1);
 		pkt_ENCODER_TEST(suite[1], t_encode_pkt2);
 		pkt_ENCODER_TEST(suite[1], t_encode_pkt3);
