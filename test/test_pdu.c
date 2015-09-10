@@ -70,7 +70,7 @@ static void test_pkt4_token_length_exceed(void)
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt5_option_is_correct(void) 
+static void test_pkt5_with_options(void) 
 {
 	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -93,20 +93,12 @@ static void test_pkt6_option_length_exceed(void)
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-#if 0
-
-static void
-t_parse_pkt7(void) {
-	/* p_pkt with options and payload */
-	uint8 teststr[] = {  0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e',
-		      'n',  0x00, 0xc1, 0x00, 0xff, 'p', 'a', 'y',
-			  'l', 'o', 'a', 'd'
-	};
-	int result;
+static void test_pkt7_with_options_and_payload(void) 
+{
+	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00, 0xff, 'p', 'a', 'y', 'l', 'o', 'a', 'd'};
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result > 0);
-	
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
 	CU_ASSERT(p_pkt->hdr.type == COAP_PKT_TYPE_NON);
@@ -114,15 +106,11 @@ t_parse_pkt7(void) {
 	CU_ASSERT(p_pkt->hdr.code == 0x73);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 	CU_ASSERT(memcmp(p_pkt->hdr.token, teststr + 4, 5) == 0);
-	
-	/* FIXME: check options */
-	
-	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 13);
+	CU_ASSERT(p_pkt->p_data == (unsigned char *)&p_pkt->hdr + 13);
 	CU_ASSERT(memcmp(p_pkt->p_data, teststr + 13, 7) == 0);
 }
 
-static void
-t_parse_pkt8(void) {
+static void t_parse_pkt8(void) {
 	/* p_pkt without options but with payload */
 	uint8 teststr[] = {  0x50, 0x73, 0x12, 0x34,
 		      0xff, 'p', 'a', 'y', 'l', 'o', 'a',
@@ -145,6 +133,8 @@ t_parse_pkt8(void) {
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 5);
 	CU_ASSERT(memcmp(p_pkt->p_data, teststr + 5, 7) == 0);
 }
+
+#if 0
 
 static void
 t_parse_pkt9(void) {
@@ -623,10 +613,10 @@ CU_pSuite t_init_pdu_tests(void) {
 	PKT_TEST(suite[0], test_pkt2_token_is_correct);
 	PKT_TEST(suite[0], test_pkt3_token_data_exceed);
 	PKT_TEST(suite[0], test_pkt4_token_length_exceed);
-	PKT_TEST(suite[0], test_pkt5_option_is_correct);
+	PKT_TEST(suite[0], test_pkt5_with_options);
 	PKT_TEST(suite[0], test_pkt6_option_length_exceed);
-/*	PKT_TEST(suite[0], t_parse_pkt7);
-	PKT_TEST(suite[0], t_parse_pkt8);
+	PKT_TEST(suite[0], test_pkt7_with_options_and_payload);
+/*	PKT_TEST(suite[0], t_parse_pkt8);
 	PKT_TEST(suite[0], t_parse_pkt9);
 	PKT_TEST(suite[0], t_parse_pkt10);
 	PKT_TEST(suite[0], t_parse_pkt11);
