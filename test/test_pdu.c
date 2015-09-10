@@ -155,16 +155,12 @@ static void test_pkt11_code_zero_dot_zero()
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 }
 
-#if 0
-static void
-t_parse_pkt12(void) {
-	/* RST */
-	uint8 teststr[] = {  0x70, 0x00, 0x12, 0x34 };
-	int result;
-	
+static void test_pkt12_reset(void) 
+{
+	uint8 teststr[] = {0x70, 0x00, 0x12, 0x34};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
-	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(p_pkt->hdr.version == 1);
 	CU_ASSERT(p_pkt->hdr.type == COAP_PKT_TYPE_RST);
@@ -173,6 +169,7 @@ t_parse_pkt12(void) {
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 }
 
+#if 0
 static void
 t_parse_pkt13(void) {
 	/* RST with content */
@@ -602,8 +599,8 @@ CU_pSuite t_init_pdu_tests(void) {
 	PKT_TEST(suite[0], test_pkt9_without_options_and_payload_but_with_payload_marker);
 	PKT_TEST(suite[0], test_pkt10_with_options_without_payload_but_with_payload_marker);
 	PKT_TEST(suite[0], test_pkt11_code_zero_dot_zero);
-/*	PKT_TEST(suite[0], t_parse_pkt12);
-	PKT_TEST(suite[0], t_parse_pkt13);
+	PKT_TEST(suite[0], test_pkt12_reset);
+/*	PKT_TEST(suite[0], t_parse_pkt13);
 	PKT_TEST(suite[0], t_parse_pkt14);
 */	
 	suite[1] = CU_add_suite("p_pkt encoder", t_pkt_tests_create, t_pkt_tests_remove);
