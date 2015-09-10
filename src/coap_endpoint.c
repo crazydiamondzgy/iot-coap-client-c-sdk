@@ -221,7 +221,7 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 						continue;
 					}
 					
-					p_pkt = coap_pkt_parse(buf, len);
+					p_pkt = coap_pkt_parse((uint8 *)buf, len);
 					if (NULL == p_pkt) 
 					{
 						coap_log_error_string("received a invalid packet!\r\n");
@@ -245,7 +245,6 @@ DWORD WINAPI coap_work_thread(LPVOID p_void)
 
 int coap_clear_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 {
-	int i = 0;
 	assert(p_endpoint_mgr);
 
 	memset(p_endpoint_mgr->m_coap_endpoints, 0, sizeof(coap_endpoint_t *)*COAP_MAX_ENDPOINTS);
@@ -255,7 +254,6 @@ int coap_clear_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 
 int coap_init_endpoints(coap_endpoint_mgr_t * p_endpoint_mgr)
 {
-	int i = 0;
 	assert(p_endpoint_mgr);
 
 	coap_clear_endpoints(p_endpoint_mgr);
@@ -346,7 +344,7 @@ int coap_send_queue_del_node(coap_endpoint_t * p_endpoint, uint16 message_id)
 	
 	for (p = p_endpoint->m_send_queue.next; p != &p_endpoint->m_send_queue; p = next)
 	{
-		coap_pkt_t * p_pkt = queue_entry(p, coap_pkt_t, node);
+		p_pkt = queue_entry(p, coap_pkt_t, node);
 		next = p->next;
 		if (p_pkt->hdr.message_id == message_id) 
 		{

@@ -5,7 +5,9 @@
 *.plg
 *.suo
 *.user
+*.DS_Store
 build/vc6/*Debug/
 build/vc8/*Debug/
 build/android/libs/
 build/android/obj/
+.TemporaryItems/

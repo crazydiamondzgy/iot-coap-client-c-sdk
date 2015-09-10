@@ -63,7 +63,7 @@ int coap_connect(char * p_str_addr, int port)
 		p_endpoint = coap_alloc_endpoint();
 		p_endpoint->m_servsock = socket(AF_INET, SOCK_DGRAM, 0);
 		p_endpoint->m_servaddr.sin_family = AF_INET;
-		p_endpoint->m_servaddr.sin_addr.s_addr = *(u_long *)p_host->h_addr_list[0];
+		p_endpoint->m_servaddr.sin_addr.s_addr = *(uint32 *)p_host->h_addr_list[0];
 		p_endpoint->m_servaddr.sin_port = htons((int16)port);
 		
 		coap_set_endpoint(&__coap_endpoint_mgr, unused_endpoint_index, p_endpoint);
@@ -89,7 +89,7 @@ int coap_close(int s)
 	return 0;
 }
 
-int coap_send(int s, char * p_method, char * p_url, char * p_data, int len) 
+int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 {
 	char * p_path = p_url;
 	char * p_query = strchr(p_url, '?') ? strchr(p_url, '?') : p_url + strlen(p_url);
@@ -152,7 +152,7 @@ int coap_send(int s, char * p_method, char * p_url, char * p_data, int len)
 		}
 	}
 	
-	coap_pkt_add_data(p_pkt, p_data, len);
+	coap_pkt_add_data(p_pkt, (uint8 *)p_data, len);
 	
 	p_pkt->last_transmit_time = coap_get_milliseconds();
 	p_pkt->retransmit_count = 0;

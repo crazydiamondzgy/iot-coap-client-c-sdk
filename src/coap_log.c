@@ -12,7 +12,7 @@
 #endif
 
 #include "coap_log.h"
-#include "coap_packet.h"
+#include "coap_pkt.h"
 #include "os_support.h"
 
 static char * __coap_log_level_string[COAP_LOG_LEVEL_MAX] =
@@ -56,7 +56,7 @@ void coap_log_print(char * tmp, int level)
 	}
 	__android_log_print(android_log_level, "coap", tmp);
 #else
-	printf(tmp);
+	printf("%s", tmp);
 #endif
 }
 

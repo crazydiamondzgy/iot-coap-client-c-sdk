@@ -93,7 +93,7 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len);
 int coap_pkt_free(coap_pkt_t * p_pkt);
 int coap_pkt_add_header(coap_pkt_t * p_pkt, uint8 type, uint8 code, uint16 message_id);
 int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len);
-int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, uint8 * option_data, size_t option_len);
+int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, char * option_data, size_t option_len);
 int coap_pkt_add_data(coap_pkt_t * p_pkt, uint8 * data, size_t data_len);
 
 #endif
