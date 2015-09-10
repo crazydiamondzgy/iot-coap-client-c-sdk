@@ -169,34 +169,23 @@ static void test_pkt12_reset(void)
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 }
 
+static void test_pkt13_reset_with_content()
+{
+	uint8 teststr[] = {0x70, 0x00, 0x12, 0x34, 0xff, 'c', 'o', 'n', 't', 'e', 'n', 't'};
+	
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NULL(p_pkt);
+}
+
+static void test_pkt14_ack_with_content() 
+{
+	uint8 teststr[] = {0x60, 0x00, 0x12, 0x34, 0xff, 'c', 'o', 'n', 't', 'e', 'n', 't'};
+	
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NULL(p_pkt);
+}
+
 #if 0
-static void
-t_parse_pkt13(void) {
-	/* RST with content */
-	uint8 teststr[] = {  0x70, 0x00, 0x12, 0x34,
-		      0xff, 'c', 'o', 'n', 't', 'e', 'n', 't'
-	};
-	int result;
-	
-	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
-	CU_ASSERT_PTR_NULL(p_pkt);
-}
-
-static void
-t_parse_pkt14(void) {
-	/* ACK with content */
-	uint8 teststr[] = {  0x60, 0x00, 0x12, 0x34,
-		      0xff, 'c', 'o', 'n', 't', 'e', 'n', 't'
-	};
-	int result;
-	
-	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
-	CU_ASSERT_PTR_NULL(p_pkt);
-}
-
-/************************************************************************
-** p_pkt encoder
-************************************************************************/
 
 static void
 t_encode_pkt1(void) {
@@ -570,21 +559,24 @@ t_encode_pkt11(void) {
 
 #endif
 
-static int t_pkt_tests_create(void) {
+static int t_pkt_tests_create(void) 
+{
 	return 0;
 }
 
-static int t_pkt_tests_remove(void) {
+static int t_pkt_tests_remove(void)
+{
 	return 0;
 }
 
-CU_pSuite t_init_pdu_tests(void) {
+CU_pSuite t_init_pdu_tests() 
+{
 	CU_pSuite suite[2];
 	
 	suite[0] = CU_add_suite("p_pkt parser", t_pkt_tests_create, t_pkt_tests_remove);
-	if (!suite[0]) {			/* signal error */
+	if (!suite[0]) 
+	{
 		fprintf(stderr, "W: cannot add p_pkt parser test suite (%s)\n", CU_get_error_msg());
-		
 		return NULL;
 	}
 	
@@ -600,9 +592,9 @@ CU_pSuite t_init_pdu_tests(void) {
 	PKT_TEST(suite[0], test_pkt10_with_options_without_payload_but_with_payload_marker);
 	PKT_TEST(suite[0], test_pkt11_code_zero_dot_zero);
 	PKT_TEST(suite[0], test_pkt12_reset);
-/*	PKT_TEST(suite[0], t_parse_pkt13);
-	PKT_TEST(suite[0], t_parse_pkt14);
-*/	
+	PKT_TEST(suite[0], test_pkt13_reset_with_content);
+	PKT_TEST(suite[0], test_pkt14_ack_with_content);
+	
 	suite[1] = CU_add_suite("p_pkt encoder", t_pkt_tests_create, t_pkt_tests_remove);
 	if (suite[1]) {
 
