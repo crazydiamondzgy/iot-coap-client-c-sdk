@@ -98,19 +98,19 @@ SOURCE=..\..\src\coap_log.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\coap_option.c
+SOURCE=..\..\src\coap_opt.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\coap_option.h
+SOURCE=..\..\src\coap_opt.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\coap_packet.c
+SOURCE=..\..\src\coap_pkt.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\coap_packet.h
+SOURCE=..\..\src\coap_pkt.h
 # End Source File
 # Begin Source File
 
