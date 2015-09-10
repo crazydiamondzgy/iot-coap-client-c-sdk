@@ -19,7 +19,7 @@
 #define PKT_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt parser test (%s)\n",	CU_get_error_msg());}
 #define pkt_ENCODER_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt encoder test (%s)\n", CU_get_error_msg());}
 
-static void t_parse_pkt1(void)
+static void tect_pkt1_minimum_size(void)
 {
 	uint8 teststr[] = {  0x40, 0x01, 0x93, 0x34 };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -36,7 +36,7 @@ static void t_parse_pkt1(void)
 	free(p_pkt);
 }
 
-static void t_parse_pkt2(void) 
+static void test_pkt2_token_is_correct(void) 
 {
 	uint8 teststr[] = {  0x55, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -52,14 +52,14 @@ static void t_parse_pkt2(void)
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 }
 
-static void t_parse_pkt3(void) 
+static void test_pkt3_token_data_exceed(void) 
 {
 	uint8 teststr[] = {  0x53, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void t_parse_pkt4(void)
+static void test_pkt4_token_length_exceed(void)
 {
 	uint8 teststr[] = {  0x59, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n', '1', '2', '3', '4' };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -70,7 +70,7 @@ static void t_parse_pkt4(void)
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void t_parse_pkt5(void) 
+static void test_pkt5_option_is_correct(void) 
 {
 	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -86,18 +86,14 @@ static void t_parse_pkt5(void)
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 }
 
-#if 0
-static void
-t_parse_pkt6(void) {
-	/* p_pkt with options that exceed the p_pkt */
-	uint8 teststr[] = {  0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e',
-		      'n',  0x00, 0xc1, 0x00, 0xae, 0xf0, 0x03
-	};
-	int result;
-	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result == 0);
+static void test_pkt6_option_length_exceed(void)
+{
+	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00, 0xae, 0xf0, 0x03};
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NULL(p_pkt);
 }
+
+#if 0
 
 static void
 t_parse_pkt7(void) {
@@ -623,13 +619,13 @@ CU_pSuite t_init_pdu_tests(void) {
 		return NULL;
 	}
 	
-	PKT_TEST(suite[0], t_parse_pkt1);
-	PKT_TEST(suite[0], t_parse_pkt2);
-	PKT_TEST(suite[0], t_parse_pkt3);
-	PKT_TEST(suite[0], t_parse_pkt4);
-	PKT_TEST(suite[0], t_parse_pkt5);
-/*	PKT_TEST(suite[0], t_parse_pkt6);
-	PKT_TEST(suite[0], t_parse_pkt7);
+	PKT_TEST(suite[0], tect_pkt1_minimum_size);
+	PKT_TEST(suite[0], test_pkt2_token_is_correct);
+	PKT_TEST(suite[0], test_pkt3_token_data_exceed);
+	PKT_TEST(suite[0], test_pkt4_token_length_exceed);
+	PKT_TEST(suite[0], test_pkt5_option_is_correct);
+	PKT_TEST(suite[0], test_pkt6_option_length_exceed);
+/*	PKT_TEST(suite[0], t_parse_pkt7);
 	PKT_TEST(suite[0], t_parse_pkt8);
 	PKT_TEST(suite[0], t_parse_pkt9);
 	PKT_TEST(suite[0], t_parse_pkt10);
