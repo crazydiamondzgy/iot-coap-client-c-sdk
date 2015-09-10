@@ -4,8 +4,9 @@
 #include <memory.h>
 #include <string.h>
 
-#include "coap_packet.h"
+#include "coap_pkt.h"
 #include "coap_log.h"
+#include "coap_opt.h"
 
 coap_pkt_t * coap_pkt_alloc(size_t len)
 {
@@ -181,16 +182,19 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len)
 
 	len -= p_pkt->hdr.token_length + 4;
 	p_pkt->p_option = p_option = (uint8 *)&p_pkt->hdr + p_pkt->hdr.token_length + 4;
-
+	
 	while (len && *p_option != 0xFF)
 	{
-		len--;
-		p_option++;
+		if (!coap_opt_is_valid(&p_option, (size_t *)&len))
+		{
+			coap_log_error_string("coap option is not valid\r\n");
+			goto discard;
+		}
 	}
 
 	p_pkt->option_length = p_option - p_pkt->p_option;
 
-	if (len) 
+	if (len > 1)
 	{
 		p_pkt->data_length = len--;
 		p_pkt->p_data = (uint8 *)++p_option;

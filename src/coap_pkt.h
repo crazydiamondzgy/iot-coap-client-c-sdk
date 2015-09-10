@@ -1,5 +1,5 @@
-#ifndef __COAP_PACKET_H__
-#define __COAP_PACKET_H__
+#ifndef __COAP_PKT_H__
+#define __COAP_PKT_H__
 
 #include "coap_type.h"
 #include "queue.h"
