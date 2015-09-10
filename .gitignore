@@ -11,3 +11,4 @@ build/vc8/*Debug/
 build/android/libs/
 build/android/obj/
 .TemporaryItems/
+build/xcode/ucoap/Build/
