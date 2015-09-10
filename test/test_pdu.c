@@ -9,7 +9,7 @@
 #include "test_pdu.h"
 #include "../inc/ucoap.h"
 #include "../src/coap_type.h"
-#include "../src/coap_packet.h"
+#include "../src/coap_pkt.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -56,24 +56,18 @@ static void t_parse_pkt3(void)
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-
-#if 0
-static void
-t_parse_pkt4(void) {
-	/* illegal token length */
-	uint8 teststr[] = {  0x59, 0x69, 0x12, 0x34,
-		      't', 'o', 'k', 'e', 'n', '1', '2', '3', '4' };
-	int result;
-	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result == 0);
+static void t_parse_pkt4(void)
+{
+	uint8 teststr[] = {  0x59, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n', '1', '2', '3', '4' };
+	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NULL(p_pkt);
 	
 	teststr[0] = 0x5f;
-	
-	result = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr), p_pkt);
-	CU_ASSERT(result == 0);
+	p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
+	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
+#if 0
 static void
 t_parse_pkt5(void) {
 	/* p_pkt with options */
@@ -643,8 +637,8 @@ CU_pSuite t_init_pdu_tests(void) {
 	PKT_TEST(suite[0], t_parse_pkt1);
 	PKT_TEST(suite[0], t_parse_pkt2);
 	PKT_TEST(suite[0], t_parse_pkt3);
-/*	PKT_TEST(suite[0], t_parse_pkt4);
-	PKT_TEST(suite[0], t_parse_pkt5);
+	PKT_TEST(suite[0], t_parse_pkt4);
+/*	PKT_TEST(suite[0], t_parse_pkt5);
 	PKT_TEST(suite[0], t_parse_pkt6);
 	PKT_TEST(suite[0], t_parse_pkt7);
 	PKT_TEST(suite[0], t_parse_pkt8);
