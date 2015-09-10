@@ -4,7 +4,7 @@
 #include "mutex.h"
 #include "queue.h"
 #include "coap_type.h"
-#include "coap_packet.h"
+#include "coap_pkt.h"
 #include "os_support.h"
 
 #define COAP_MAX_ENDPOINTS  16

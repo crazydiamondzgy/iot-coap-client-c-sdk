@@ -194,10 +194,25 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len)
 
 	p_pkt->option_length = p_option - p_pkt->p_option;
 
-	if (len > 1)
+	if (len)
 	{
-		p_pkt->data_length = len--;
-		p_pkt->p_data = (uint8 *)++p_option;
+		if (*p_option != 0xFF)
+		{
+			coap_log_error_string("coap payload without start marker\r\n");
+			goto discard;
+		}
+
+		len--;
+		p_option++;
+		
+		if (0 == len)
+		{
+			coap_log_error_string("coap with start marker without payload\r\n");
+			goto discard;
+		}
+
+		p_pkt->data_length = len;
+		p_pkt->p_data = (uint8 *)p_option;
 	}
 
 	return p_pkt;

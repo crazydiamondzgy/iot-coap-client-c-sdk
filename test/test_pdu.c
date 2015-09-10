@@ -133,19 +133,15 @@ static void test_pkt9_without_options_and_payload_but_with_payload_marker(void)
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-#if 0
-
-static void
-t_parse_pkt10(void) {
-	/* p_pkt without payload but with options and payload start marker */
-	uint8 teststr[] = {  0x53, 0x73, 0x12, 0x34, 't', 'o', 'k',
-		      0x30, 0xc1, 0x00, 0xff
-	};
-	int result;
+static void test_pkt10_with_options_without_payload_but_with_payload_marker(void) 
+{
+	uint8 teststr[] = {0x53, 0x73, 0x12, 0x34, 't', 'o', 'k', 0x30, 0xc1, 0x00, 0xff};
 	
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
+
+#if 0
 
 static void
 t_parse_pkt11(void) {
@@ -607,8 +603,8 @@ CU_pSuite t_init_pdu_tests(void) {
 	PKT_TEST(suite[0], test_pkt7_with_options_and_payload);
 	PKT_TEST(suite[0], test_pkt8_without_options_with_payload);
 	PKT_TEST(suite[0], test_pkt9_without_options_and_payload_but_with_payload_marker);
-/*	PKT_TEST(suite[0], t_parse_pkt10);
-	PKT_TEST(suite[0], t_parse_pkt11);
+	PKT_TEST(suite[0], test_pkt10_with_options_without_payload_but_with_payload_marker);
+/*	PKT_TEST(suite[0], t_parse_pkt11);
 	PKT_TEST(suite[0], t_parse_pkt12);
 	PKT_TEST(suite[0], t_parse_pkt13);
 	PKT_TEST(suite[0], t_parse_pkt14);

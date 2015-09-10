@@ -3,7 +3,7 @@
 #include "coap_log.h"
 #include "coap_util.h"
 #include "coap_endpoint.h"
-#include "coap_packet.h"
+#include "coap_pkt.h"
 
 static int __is_socket_inited = 0;
 static coap_endpoint_mgr_t __coap_endpoint_mgr;

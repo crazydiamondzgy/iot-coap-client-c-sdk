@@ -9,7 +9,7 @@
 #include "mutex.h"
 #include "coap_log.h"
 #include "coap_util.h"
-#include "coap_packet.h"
+#include "coap_pkt.h"
 #include "coap_endpoint.h"
 
 coap_endpoint_t * coap_alloc_endpoint()
