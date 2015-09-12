@@ -15,7 +15,7 @@ coap_pkt_t * coap_pkt_alloc(size_t len)
 	if (p_pkt) 
 	{
 		memset(p_pkt, 0, size + 1);
-		p_pkt->size = size;
+		p_pkt->size = len;
 	}
 
 	return p_pkt;
@@ -69,11 +69,6 @@ int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, char * option_da
 	uint16 option_delta = option_type - p_pkt->max_delta;
 	int i = 0;
 	
-	if (0 == option_len)
-	{
-		return -1;
-	}
-
 	if (option_type < p_pkt->max_delta)
 	{
 		return -2;
@@ -115,9 +110,12 @@ int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, char * option_da
 		p_opt[++i] = ((option_len - 269) >> 8) & 0xFF;
 		p_opt[++i] = (option_len - 269) & 0xFF;
 	}
-	
-	memcpy(p_opt + i + 1, option_data, option_len);
-	
+
+	if (option_len)
+	{
+		memcpy(p_opt + i + 1, option_data, option_len);
+	}
+
 	p_pkt->max_delta = option_type;
 	p_pkt->packet_length += option_len + i + 1;
 
@@ -154,7 +152,7 @@ coap_pkt_t * coap_pkt_parse(uint8 * p_data, size_t len)
 
 	assert(p_data);
 
-	if (COAP_MAX_PKT_SIZE < len) 
+	if (COAP_PKT_MAX_SIZE < len) 
 	{
 		coap_log_error_string("insufficient space to store parsed packet\r\n");
 		return NULL;
