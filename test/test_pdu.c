@@ -286,72 +286,69 @@ test_build_pkt4_with_options() {
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-#if 0
-
-static void
-test_build_pkt5() {
-	/* p_pkt with token and options */
-	uint8 teststr[] = { 0x68, 0x84, 0x12, 0x34, '1',  '2',  '3',  '4',
+static void test_build_pkt5_with_token_and_options()
+{
+	uint8 teststr[] =
+	{
+		0x68, 0x84, 0x12, 0x34, '1',  '2',  '3',  '4',
 		'5',  '6',  '7',  '8',  0x18, 0x41, 0x42, 0x43,
 		0x44, 0x45, 0x46, 0x47, 0x48, 0xd1, 0x03, 0x12
 	};
 	int result;
 	
-	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);
 	
-	p_pkt->hdr.type = COAP_PKT_TYPE_ACK;
-	p_pkt->hdr.code = COAP_RESPONSE_CODE(404);
-	p_pkt->hdr.message_id = htons(0x1234);
+	result = coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_ACK, COAP_PKT_MAKE_CODE(4,4), 0x3412);
 	
 	CU_ASSERT(p_pkt->packet_length == 4);
 	
-	result = coap_pkt_add_token(p_pkt, 8, (unsigned char *)"12345678");
+	result = coap_pkt_add_token(p_pkt, (unsigned char *)"12345678", 8);
 	
 	CU_ASSERT(p_pkt->packet_length == 12);
 	
-	result = coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_IF_MATCH,
-		8, (unsigned char *)"ABCDEFGH");
+	result = coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_IF_MATCH, (unsigned char *)"ABCDEFGH", 8);
 	
-	CU_ASSERT(result == 9);
+	CU_ASSERT(result == 0);
 	CU_ASSERT(p_pkt->max_delta == 1);
 	CU_ASSERT(p_pkt->packet_length == 21);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
-	result = coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_ACCEPT,
-		1, (unsigned char *)"\x12");
+	result = coap_pkt_add_option(p_pkt, COAP_PKT_OPTION_ACCEPT, (unsigned char *)"\x12", 1);
 	
-	CU_ASSERT(result == 3);
+	CU_ASSERT(result == 0);
 	CU_ASSERT(p_pkt->max_delta == 17);
 	CU_ASSERT(p_pkt->packet_length == 24);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void
-test_build_pkt6() {
-	/* p_pkt with data */
-	uint8 teststr[] = { 0x50, 0x02, 0x12, 0x34, 0xff, '1',  '2',  '3',
-		'4', '5',  '6',  '7',  '8'
-	};
-	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
+static void test_build_pkt6_with_data()
+{
+	uint8 teststr[] = {0x50, 0x02, 0x12, 0x34, 0xff, '1',  '2',  '3', '4', '5',  '6',  '7',  '8'};
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);
 	
-	p_pkt->hdr.type = COAP_PKT_TYPE_NON;
-	p_pkt->hdr.code = COAP_PKT_CODE_POST;
-	p_pkt->hdr.message_id = htons(0x1234);
+	coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_NON, COAP_PKT_CODE_POST, 0x3412);
 	
 	CU_ASSERT(p_pkt->packet_length == 4);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
-	coap_add_data(p_pkt, 8, (unsigned char *)"12345678");
+	coap_pkt_add_data(p_pkt, (unsigned char *)"12345678", 8);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
 	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
+#if 0
 static void
 test_build_pkt7() {
 	/* p_pkt with empty data */
@@ -365,7 +362,7 @@ test_build_pkt7() {
 	
 	CU_ASSERT(p_pkt->packet_length == 4);
 	
-	result = coap_add_data(p_pkt, 0, NULL);
+	result = coap_pkt_add_data(p_pkt, 0, NULL);
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 4);
@@ -392,7 +389,7 @@ test_build_pkt8() {
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	
-	result = coap_add_data(p_pkt, 1, (unsigned char *)"\0");
+	result = coap_pkt_add_data(p_pkt, 1, (unsigned char *)"\0");
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 8);
@@ -443,7 +440,7 @@ test_build_pkt9() {
 	CU_ASSERT(p_pkt->packet_length == 34);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
-	result = coap_add_data(p_pkt, 4, (unsigned char *)"data");
+	result = coap_pkt_add_data(p_pkt, 4, (unsigned char *)"data");
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 39);
@@ -530,7 +527,7 @@ test_build_pkt10() {
 	CU_ASSERT(p_pkt->packet_length == 281);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
-	result = coap_add_data(p_pkt, 4, (unsigned char *)"data");
+	result = coap_pkt_add_data(p_pkt, 4, (unsigned char *)"data");
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	CU_ASSERT(p_pkt->packet_length == 286);
@@ -551,7 +548,7 @@ test_build_pkt11() {
 	
 	CU_ASSERT(p_pkt->p_data == NULL);
 	coap_set_log_level(LOG_CRIT);
-	result = coap_add_data(p_pkt, 10, (unsigned char *)"0123456789");
+	result = coap_pkt_add_data(p_pkt, 10, (unsigned char *)"0123456789");
 	coap_set_log_level(level);
 	
 	CU_ASSERT_PTR_NULL(p_pkt);
@@ -607,9 +604,9 @@ CU_pSuite t_init_pdu_tests()
 	PKT_BUILD_TEST(suite[1], test_build_pkt2_with_token);
 	PKT_BUILD_TEST(suite[1], test_build_pkt3_without_header_with_token);
 	PKT_BUILD_TEST(suite[1], test_build_pkt4_with_options);
-/*	PKT_BUILD_TEST(suite[1], test_build_pkt5);
-	PKT_BUILD_TEST(suite[1], test_build_pkt6);
-	PKT_BUILD_TEST(suite[1], test_build_pkt7);
+	PKT_BUILD_TEST(suite[1], test_build_pkt5_with_token_and_options);
+	PKT_BUILD_TEST(suite[1], test_build_pkt6_with_data);
+/*	PKT_BUILD_TEST(suite[1], test_build_pkt7);
 	PKT_BUILD_TEST(suite[1], test_build_pkt8);
 	PKT_BUILD_TEST(suite[1], test_build_pkt9);
 	PKT_BUILD_TEST(suite[1], test_build_pkt10);
