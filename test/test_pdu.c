@@ -16,10 +16,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PKT_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt parser test (%s)\n",	CU_get_error_msg());}
-#define pkt_ENCODER_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt encoder test (%s)\n", CU_get_error_msg());}
+#define PKT_PARSE_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt parser test (%s)\n",	CU_get_error_msg());}
+#define PKT_BUILD_TEST(s,t) if (!CU_ADD_TEST(s,t)) {fprintf(stderr, "W: cannot add p_pkt encoder test (%s)\n", CU_get_error_msg());}
 
-static void tect_pkt1_minimum_size()
+static void test_parse_pkt1_minimum_size()
 {
 	uint8 teststr[] = {  0x40, 0x01, 0x93, 0x34 };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -33,10 +33,10 @@ static void tect_pkt1_minimum_size()
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 
-	free(p_pkt);
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt2_token_is_correct() 
+static void test_parse_pkt2_token_is_correct() 
 {
 	uint8 teststr[] = {  0x55, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -48,18 +48,20 @@ static void test_pkt2_token_is_correct()
 	CU_ASSERT(p_pkt->hdr.token_length == 5);
 	CU_ASSERT(p_pkt->hdr.code == 0x69);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
-	CU_ASSERT(memcmp(p_pkt->hdr.token, teststr + 4, 5) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr.token, teststr + 4, 5) == 0);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt3_token_data_exceed() 
+static void test_parse_pkt3_token_data_exceed() 
 {
 	uint8 teststr[] = {  0x53, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt4_token_length_exceed()
+static void test_parse_pkt4_token_length_exceed()
 {
 	uint8 teststr[] = {  0x59, 0x69, 0x12, 0x34, 't', 'o', 'k', 'e', 'n', '1', '2', '3', '4' };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -70,7 +72,7 @@ static void test_pkt4_token_length_exceed()
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt5_with_options() 
+static void test_parse_pkt5_with_options() 
 {
 	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -82,18 +84,20 @@ static void test_pkt5_with_options()
 	CU_ASSERT(p_pkt->hdr.token_length == 5);
 	CU_ASSERT(p_pkt->hdr.code == 0x73);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
-	CU_ASSERT(memcmp(p_pkt->hdr.token, teststr + 4, 5) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr.token, teststr + 4, 5) == 0);
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt6_option_length_exceed()
+static void test_parse_pkt6_option_length_exceed()
 {
 	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00, 0xae, 0xf0, 0x03};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt7_with_options_and_payload() 
+static void test_parse_pkt7_with_options_and_payload() 
 {
 	uint8 teststr[] = {0x55, 0x73, 0x12, 0x34, 't', 'o', 'k', 'e', 'n',  0x00, 0xc1, 0x00, 0xff, 'p', 'a', 'y', 'l', 'o', 'a', 'd'};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -105,12 +109,14 @@ static void test_pkt7_with_options_and_payload()
 	CU_ASSERT(p_pkt->hdr.token_length == 5);
 	CU_ASSERT(p_pkt->hdr.code == 0x73);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
-	CU_ASSERT(memcmp(p_pkt->hdr.token, teststr + 4, 5) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr.token, teststr + 4, 5) == 0);
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)&p_pkt->hdr + 13);
 	CU_ASSERT(memcmp(p_pkt->p_data, teststr + 13, 7) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt8_without_options_with_payload() 
+static void test_parse_pkt8_without_options_with_payload() 
 {
 	uint8 teststr[] = {  0x50, 0x73, 0x12, 0x34, 0xff, 'p', 'a', 'y', 'l', 'o', 'a', 'd'};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -124,16 +130,18 @@ static void test_pkt8_without_options_with_payload()
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)&p_pkt->hdr + 5);
 	CU_ASSERT(memcmp(p_pkt->p_data, teststr + 5, 7) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt9_without_options_and_payload_but_with_payload_marker() 
+static void test_parse_pkt9_without_options_and_payload_but_with_payload_marker() 
 {
 	uint8 teststr[] = {  0x70, 0x00, 0x12, 0x34, 0xff };
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt10_with_options_without_payload_but_with_payload_marker() 
+static void test_parse_pkt10_with_options_without_payload_but_with_payload_marker() 
 {
 	uint8 teststr[] = {0x53, 0x73, 0x12, 0x34, 't', 'o', 'k', 0x30, 0xc1, 0x00, 0xff};
 	
@@ -141,7 +149,7 @@ static void test_pkt10_with_options_without_payload_but_with_payload_marker()
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt11_code_zero_dot_zero() 
+static void test_parse_pkt11_code_zero_dot_zero() 
 {
 	uint8 teststr[] = {0x60, 0x00, 0x12, 0x34 };	
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -153,9 +161,11 @@ static void test_pkt11_code_zero_dot_zero()
 	CU_ASSERT(p_pkt->hdr.token_length == 0);
 	CU_ASSERT(p_pkt->hdr.code == 0);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt12_reset(void) 
+static void test_parse_pkt12_reset() 
 {
 	uint8 teststr[] = {0x70, 0x00, 0x12, 0x34};
 	coap_pkt_t * p_pkt = coap_pkt_parse((unsigned char *)teststr, sizeof(teststr));
@@ -167,9 +177,11 @@ static void test_pkt12_reset(void)
 	CU_ASSERT(p_pkt->hdr.token_length == 0);
 	CU_ASSERT(p_pkt->hdr.code == 0);
 	CU_ASSERT(memcmp(&p_pkt->hdr.message_id, teststr + 2, 2) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void test_pkt13_reset_with_content()
+static void test_parse_pkt13_reset_with_content()
 {
 	uint8 teststr[] = {0x70, 0x00, 0x12, 0x34, 0xff, 'c', 'o', 'n', 't', 'e', 'n', 't'};
 	
@@ -177,7 +189,7 @@ static void test_pkt13_reset_with_content()
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-static void test_pkt14_ack_with_content() 
+static void test_parse_pkt14_ack_with_content() 
 {
 	uint8 teststr[] = {0x60, 0x00, 0x12, 0x34, 0xff, 'c', 'o', 'n', 't', 'e', 'n', 't'};
 	
@@ -185,55 +197,49 @@ static void test_pkt14_ack_with_content()
 	CU_ASSERT_PTR_NULL(p_pkt);
 }
 
-#if 0
-
-static void
-t_encode_pkt1(void) {
+static void test_build_pkt1_minimun_size()
+{
+	int result = -1;
 	uint8 teststr[] = { 0x45, 0x01, 0x12, 0x34, 't', 'o', 'k', 'e', 'n' };
-	int result;
-	
-	coap_pkt_clear(p_pkt, p_pkt->max_size);
-	p_pkt->hdr.type = COAP_PKT_TYPE_CON;
-	p_pkt->hdr.code = COAP_PKT_CODE_GET;
-	p_pkt->hdr.message_id = htons(0x1234);
-	
-	result = coap_add_token(p_pkt, 5, (unsigned char *)"token");
-	
-	CU_ASSERT(result == 1);
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+
+	result = coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0x3412);
+	result = coap_pkt_add_token(p_pkt, (unsigned char *)"token", 5);
+	CU_ASSERT(result == 0);
 	CU_ASSERT(p_pkt->packet_length = sizeof(teststr));
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void
-t_encode_pkt2(void) {
-	size_t old_max = p_pkt->max_size;
-	int result;
+static void test_build_pkt2_with_small_packet_buffer_size() 
+{
+	int result = 0;	
+	coap_pkt_t * p_pkt = coap_pkt_alloc(7);
+	result = coap_pkt_add_header(p_pkt, COAP_PKT_TYPE_CON, COAP_PKT_CODE_GET, 0x3412);
+	result = coap_pkt_add_token(p_pkt, (unsigned char *)"token", 5);
 	
-	coap_pkt_clear(p_pkt, 7);	/* set very small p_pkt size */
-	
-	p_pkt->hdr.type = COAP_PKT_TYPE_CON;
-	p_pkt->hdr.code = COAP_PKT_CODE_GET;
-	p_pkt->hdr.message_id = htons(0x1234);
-	
-	result = coap_add_token(p_pkt, 5, (unsigned char *)"token");
-	
-	CU_ASSERT_PTR_NULL(p_pkt);
-	
-	coap_pkt_clear(p_pkt, old_max);	/* restore p_pkt size */
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
+	CU_ASSERT(result < 0);
+
+	coap_pkt_free(p_pkt);
 }
 
-static void
-t_encode_pkt3(void) {
-	int result;
+static void test_build_pkt3_without_header_with_token()
+{
+	int result = 0;
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_MAX_PKT_SIZE);
+	result = coap_pkt_add_token(p_pkt, (unsigned char *)"123456789", 9);
 	
-	result = coap_add_token(p_pkt, 9, (unsigned char *)"123456789");
-	
-	CU_ASSERT_PTR_NULL(p_pkt);
-}
+	CU_ASSERT_PTR_NOT_NULL(p_pkt);
+	CU_ASSERT(result < 0);
 
+	coap_pkt_free(p_pkt);
+}
+#if 0
 static void
-t_encode_pkt4(void) {
+test_build_pkt4() {
 	/* p_pkt with options */
 	uint8 teststr[] = { 0x60, 0x99, 0x12, 0x34, 0x3d, 0x05, 0x66, 0x61,
 		0x6e, 0x63, 0x79, 0x70, 0x72, 0x6f, 0x78, 0x79,
@@ -244,7 +250,7 @@ t_encode_pkt4(void) {
 	};
 	int result;
 	
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_ACK;
 	p_pkt->hdr.code = 0x99;
@@ -283,11 +289,11 @@ t_encode_pkt4(void) {
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt5(void) {
+test_build_pkt5() {
 	/* p_pkt with token and options */
 	uint8 teststr[] = { 0x68, 0x84, 0x12, 0x34, '1',  '2',  '3',  '4',
 		'5',  '6',  '7',  '8',  0x18, 0x41, 0x42, 0x43,
@@ -295,7 +301,7 @@ t_encode_pkt5(void) {
 	};
 	int result;
 	
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_ACK;
 	p_pkt->hdr.code = COAP_RESPONSE_CODE(404);
@@ -303,7 +309,7 @@ t_encode_pkt5(void) {
 	
 	CU_ASSERT(p_pkt->packet_length == 4);
 	
-	result = coap_add_token(p_pkt, 8, (unsigned char *)"12345678");
+	result = coap_pkt_add_token(p_pkt, 8, (unsigned char *)"12345678");
 	
 	CU_ASSERT(p_pkt->packet_length == 12);
 	
@@ -324,16 +330,16 @@ t_encode_pkt5(void) {
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt6(void) {
+test_build_pkt6() {
 	/* p_pkt with data */
 	uint8 teststr[] = { 0x50, 0x02, 0x12, 0x34, 0xff, '1',  '2',  '3',
 		'4', '5',  '6',  '7',  '8'
 	};
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_NON;
 	p_pkt->hdr.code = COAP_PKT_CODE_POST;
@@ -345,15 +351,15 @@ t_encode_pkt6(void) {
 	coap_add_data(p_pkt, 8, (unsigned char *)"12345678");
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt7(void) {
+test_build_pkt7() {
 	/* p_pkt with empty data */
 	uint8 teststr[] = { 0x40, 0x43, 0x12, 0x34 };
 	int result;
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_CON;
 	p_pkt->hdr.code = COAP_RESPONSE_CODE(203);
@@ -368,15 +374,15 @@ t_encode_pkt7(void) {
 	CU_ASSERT_PTR_NULL(p_pkt->p_data);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt8(void) {
+test_build_pkt8() {
 	/* p_pkt with token and data */
 	uint8 teststr[] = { 0x42, 0x43, 0x12, 0x34, 0x00, 0x01, 0xff, 0x00 };
 	int result;
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_CON;
 	p_pkt->hdr.code = COAP_RESPONSE_CODE(203);
@@ -384,7 +390,7 @@ t_encode_pkt8(void) {
 	
 	CU_ASSERT(p_pkt->packet_length == 4);
 	
-	result = coap_add_token(p_pkt, 2, (unsigned char *)"\x00\x01");
+	result = coap_pkt_add_token(p_pkt, 2, (unsigned char *)"\x00\x01");
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	
@@ -395,11 +401,11 @@ t_encode_pkt8(void) {
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 7);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt9(void) {
+test_build_pkt9() {
 	/* p_pkt with options and data */
 	uint8 teststr[] = { 0x60, 0x44, 0x12, 0x34, 0x48, 's',  'o',  'm',
 		'e',  'e',  't',  'a',  'g',  0x10, 0xdd, 0x11,
@@ -409,7 +415,7 @@ t_encode_pkt9(void) {
 	};
 	int result;
 	
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_ACK;
 	p_pkt->hdr.code = COAP_RESPONSE_CODE(204);
@@ -446,11 +452,11 @@ t_encode_pkt9(void) {
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 35);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt10(void) {
+test_build_pkt10() {
 	/* p_pkt with token, options and data */
 	uint8 teststr[] = { 0x62, 0x44, 0x12, 0x34, 0x00, 0x00, 0x8d, 0xf2,
 		'c',  'o',  'a',  'p',  ':',  '/',  '/',  'e',
@@ -491,7 +497,7 @@ t_encode_pkt10(void) {
 	};
 	int result;
 	
-	coap_pkt_clear(p_pkt, p_pkt->max_size);	/* clear p_pkt */
+	coap_pkt_t * p_pkt = coap_pkt_alloc(COAP_PKT_MAX_SIZE);	/* clear p_pkt */
 	
 	p_pkt->hdr.type = COAP_PKT_TYPE_ACK;
 	p_pkt->hdr.code = COAP_RESPONSE_CODE(204);
@@ -499,7 +505,7 @@ t_encode_pkt10(void) {
 	
 	CU_ASSERT(p_pkt->packet_length == 4);
 	
-	result = coap_add_token(p_pkt, 2, (unsigned char *)"\0\0");
+	result = coap_pkt_add_token(p_pkt, 2, (unsigned char *)"\0\0");
 	
 	CU_ASSERT_PTR_NOT_NULL(p_pkt);
 	result = coap_add_option(p_pkt, COAP_OPTION_LOCATION_PATH, 255,
@@ -533,11 +539,11 @@ t_encode_pkt10(void) {
 	CU_ASSERT(p_pkt->p_data == (unsigned char *)p_pkt->hdr + 282);
 	
 	CU_ASSERT(p_pkt->packet_length == sizeof(teststr));
-	CU_ASSERT(memcmp(p_pkt->hdr, teststr, sizeof(teststr)) == 0);
+	CU_ASSERT(memcmp(&p_pkt->hdr, teststr, sizeof(teststr)) == 0);
 }
 
 static void
-t_encode_pkt11(void) {
+test_build_pkt11() {
 	coap_log_t level = coap_get_log_level();
 	/* data too long for p_pkt */
 	size_t old_max = p_pkt->max_size;
@@ -555,10 +561,7 @@ t_encode_pkt11(void) {
 	
 	p_pkt->max_size = old_max;
 }
-
-
 #endif
-
 static int t_pkt_tests_create(void) 
 {
 	return 0;
@@ -580,40 +583,40 @@ CU_pSuite t_init_pdu_tests()
 		return NULL;
 	}
 	
-	PKT_TEST(suite[0], tect_pkt1_minimum_size);
-	PKT_TEST(suite[0], test_pkt2_token_is_correct);
-	PKT_TEST(suite[0], test_pkt3_token_data_exceed);
-	PKT_TEST(suite[0], test_pkt4_token_length_exceed);
-	PKT_TEST(suite[0], test_pkt5_with_options);
-	PKT_TEST(suite[0], test_pkt6_option_length_exceed);
-	PKT_TEST(suite[0], test_pkt7_with_options_and_payload);
-	PKT_TEST(suite[0], test_pkt8_without_options_with_payload);
-	PKT_TEST(suite[0], test_pkt9_without_options_and_payload_but_with_payload_marker);
-	PKT_TEST(suite[0], test_pkt10_with_options_without_payload_but_with_payload_marker);
-	PKT_TEST(suite[0], test_pkt11_code_zero_dot_zero);
-	PKT_TEST(suite[0], test_pkt12_reset);
-	PKT_TEST(suite[0], test_pkt13_reset_with_content);
-	PKT_TEST(suite[0], test_pkt14_ack_with_content);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt1_minimum_size);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt2_token_is_correct);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt3_token_data_exceed);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt4_token_length_exceed);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt5_with_options);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt6_option_length_exceed);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt7_with_options_and_payload);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt8_without_options_with_payload);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt9_without_options_and_payload_but_with_payload_marker);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt10_with_options_without_payload_but_with_payload_marker);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt11_code_zero_dot_zero);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt12_reset);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt13_reset_with_content);
+	PKT_PARSE_TEST(suite[0], test_parse_pkt14_ack_with_content);
 	
 	suite[1] = CU_add_suite("p_pkt encoder", t_pkt_tests_create, t_pkt_tests_remove);
-	if (suite[1]) {
-
-/*		pkt_ENCODER_TEST(suite[1], t_encode_pkt1);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt2);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt3);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt4);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt5);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt6);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt7);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt8);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt9);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt10);
-		pkt_ENCODER_TEST(suite[1], t_encode_pkt11);
-*/		
-	} else 			/* signal error */
-		fprintf(stderr, "W: cannot add p_pkt parser test suite (%s)\n",
-		CU_get_error_msg());
+	if (!suite[1]) 
+	{
+		fprintf(stderr, "W: cannot add p_pkt parser test suite (%s)\n", CU_get_error_msg());
+		return NULL;
+	}
 	
+	PKT_BUILD_TEST(suite[1], test_build_pkt1_minimun_size);
+	PKT_BUILD_TEST(suite[1], test_build_pkt2_with_small_packet_buffer_size);
+	PKT_BUILD_TEST(suite[1], test_build_pkt3_without_header_with_token);
+/*	PKT_BUILD_TEST(suite[1], test_build_pkt4);
+	PKT_BUILD_TEST(suite[1], test_build_pkt5);
+	PKT_BUILD_TEST(suite[1], test_build_pkt6);
+	PKT_BUILD_TEST(suite[1], test_build_pkt7);
+	PKT_BUILD_TEST(suite[1], test_build_pkt8);
+	PKT_BUILD_TEST(suite[1], test_build_pkt9);
+	PKT_BUILD_TEST(suite[1], test_build_pkt10);
+	PKT_BUILD_TEST(suite[1], test_build_pkt11);
+*/	
 	return suite[0];
 }
 

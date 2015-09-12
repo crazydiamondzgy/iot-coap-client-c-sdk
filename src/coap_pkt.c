@@ -23,9 +23,13 @@ coap_pkt_t * coap_pkt_alloc(size_t len)
 
 int coap_pkt_free(coap_pkt_t * p_pkt) 
 {
-	free(p_pkt);
+	if (p_pkt)
+	{
+		free(p_pkt);
+		return 0;
+	}
 
-	return 0;
+	return -1;
 }
 
 int coap_pkt_add_header(coap_pkt_t * p_pkt, uint8 type, uint8 code, uint16 message_id) 
@@ -59,7 +63,8 @@ int coap_pkt_add_token(coap_pkt_t * p_pkt, uint8 * token_data, size_t token_len)
 	return 0;
 }
 
-int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, char * option_data, size_t option_len) {
+int coap_pkt_add_option(coap_pkt_t * p_pkt, uint16 option_type, char * option_data, size_t option_len)
+{
 	uint8 * p_opt = (uint8 *)&p_pkt->hdr + p_pkt->packet_length;
 	uint16 option_delta = option_type - p_pkt->max_delta;
 	int i = 0;
